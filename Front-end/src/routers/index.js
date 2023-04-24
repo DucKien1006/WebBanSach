@@ -6,9 +6,11 @@ import TheDashBoard from '../views/admin/TheDashBoard.vue'
 import TheContent from '../components/TheContent.vue'
 import TheLogin from '../components/TheLogin.vue'
 import TheCart from '../components/TheCart.vue'
+import HistoryOrder from '../components/HistoryOrder.vue'
 
 import TheManageUser from '../components/tables/TheManageUser.vue'
 import TheManageProduct from '../components/tables/TheManageProduct.vue'
+import TheManageOrder from '../components/tables/TheManageOrder.vue'
 const routes = [
     {
         path: '/',
@@ -30,6 +32,11 @@ const routes = [
               path: 'cart',
               name: 'Cart',
               component: TheCart,
+            },
+            {
+              path: 'history',
+              name: 'History',
+              component: HistoryOrder,
             }
           ],
     },
@@ -44,15 +51,20 @@ const routes = [
                 component: TheDashBoard,
             }, 
             {
+                path: '/manageproduct',
+                name: 'ManageProduct',
+                component: TheManageProduct,
+            },
+            {
                 path: '/manageuser',
                 name: 'ManageUser',
                 component: TheManageUser,
             },
             {
-                path: '/manageproduct',
-                name: 'ManageProduct',
-                component: TheManageProduct,
-            },
+              path: '/manageorder',
+              name: 'ManageOrder',
+              component: TheManageOrder,
+          },
         ]
     },
     {

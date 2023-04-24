@@ -8,9 +8,31 @@ export function addItems(payload) {
     });
 }
 
-export function getItems(userId) {
+export function getItems() {
     return request({
-        url: `/cart?userId=${userId}`,
+        url: '/cart',
         methods: 'get',
     });
+}
+
+export function checkoutApi(payload) {
+    return request({
+        url: '/cart/checkout',
+        method: 'post',
+        data: payload,
+    });
+}
+
+export function getHistory() {
+    return request({
+        url: '/cart/history',
+        method: 'get',
+    });
+}
+
+export function updateQuantity(idOrder, type) {
+    return request({
+        url: `/Cart/updateQuantity/${idOrder}?type=${type}`,
+        method: 'put'
+    })
 }

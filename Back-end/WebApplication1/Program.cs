@@ -64,7 +64,9 @@ builder.Services.AddAuthorization(config => {
     config.AddPolicy("ShouldContainRole",
         options => options.RequireClaim("Role"));
 });
+builder.Services.AddDistributedMemoryCache();
 
+builder.Services.AddSession();
 // email
 builder.Services.Configure<MailSettings>(builder.Configuration.GetSection(nameof(MailSettings)));
 builder.Services.AddTransient<IMailService, MailService>();
@@ -96,7 +98,7 @@ app.UseCors("corsapp");
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
-
+app.UseSession();
 app.MapControllers();
 
 app.Run();

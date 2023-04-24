@@ -12,7 +12,7 @@ namespace DACN.Infrastructure.Repository
 {
     public class BaseRepository<T> : IBaseRepository<T> where T : class
     {
-        public string connectString = "Server=localhost;User=root;Password=ghijkl121;Database=book_store";
+        public string connectString = "Server=localhost;User=root;Password=binh1008;Database=book_store";
         public dynamic Count()
         {
             var sqlConnector = new MySqlConnection(connectString);
@@ -29,7 +29,7 @@ namespace DACN.Infrastructure.Repository
         public IEnumerable<T> GetAll()
         {
             var sqlConnector = new MySqlConnection(connectString);
-            var sqlQuery = "Select * from " + typeof(T).Name + " limit 10";
+            var sqlQuery = "Select * from " + typeof(T).Name + "";
             var res = sqlConnector.Query<T>(sqlQuery);
             return res;
         }

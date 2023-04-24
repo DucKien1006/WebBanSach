@@ -7,7 +7,7 @@
     >
       <DxCommonSeriesSettings
         :type="type"
-        argument-field="year"
+        argument-field="MONTH"
       />
       <DxCommonAxisSettings>
         <DxGrid :visible="true"/>
@@ -66,54 +66,69 @@ export default {
     DxLabel,
     DxFormat,
   },
+  props:{
+    chartOrder :[],
+  },
 
   data() {
     return {
-      sharingStatisticsInfo : [{
-year: 1,
-cluster: 1,
-}, {
-year: 2,
-cluster: 7,
-}, {
-year: 3,
-cluster: 45,
-}, {
-year: 4,
-cluster: 211,
-}, {
-year: 5,
-cluster: 382,
-}, {
-year: 6,
-cluster: 437,
-},
-{
-year: 7,
-cluster: 437,
-}, {
-year: 8,
-cluster: null,
-}, {
-year: 9,
-// cluster: 437,
-}, {
-year: 10,
-// cluster: 0,
-}, {
-year: 11,
-// cluster: 0,
-}, {
-year: 12,
-// cluster: 0,
-}, ],
+      sharingStatisticsInfo: [{
+        MONTH: 1,
+        Total: 1,
+      }, {
+        MONTH: 2,
+        Total: 7,
+      }, {
+        MONTH: 3,
+        Total: 45,
+      }, {
+        MONTH: 4,
+        Total: 211,
+      }, {
+        MONTH: 5,
+        Total: 382,
+      }, {
+        MONTH: 6,
+        Total: 437,
+      },
+      {
+        MONTH: 7,
+        Total: 437,
+      }, {
+        MONTH: 8,
+        Total: null,
+      }, {
+        MONTH: 9,
+        Total: 0,
+      }, {
+        MONTH: 10,
+        // cluster: 0,
+      }, {
+        MONTH: 11,
+        // cluster: 0,
+      }, {
+        MONTH: 12,
+        // cluster: 0,
+      },],
       architectureSources : [
-{ value: 'cluster', name: 'Cluster' },
+{ value: 'Total', name: 'Tổng tiền' },
 ],
       types: ['spline', 'stackedspline', 'fullstackedspline'],
       type: 'spline',
     };
   },
+  created() {
+  },
+  watch:{
+    chartOrder: {
+      handler(newQuestion) {
+        // this will be run immediately on component creation.
+        this.sharingStatisticsInfo = this.chartOrder;
+      },
+      // force eager callback execution
+      immediate: true
+    }
+  }
 };
 </script>
 <style>

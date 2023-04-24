@@ -1,157 +1,99 @@
 <template>
     <div class="wrap-table100">
-        <div class="top-table">
-            <div class="search-table">
-                <input placeholder="Nhập từ bạn muốn tìm kiếm"/>
-                <i class="fa-solid fa-magnifying-glass"></i>
-            </div>
-            <div class="btn-insert">
-                <span>Thêm mới</span>
-            </div>
-        </div>
+        
         <div class="table">
             <div class="row header">
-                <div class="cell">
-                    Full Name
+                <div class="cell" v-for="(column, index) in listColumns">
+                    {{ column }}
                 </div>
                 <div class="cell">
-                    Age
-                </div>
-                <div class="cell">
-                    Job Title
-                </div>
-                <div class="cell">
-                    Location
-                </div>
-                <div class="cell">
-                    Button
+                    
                 </div>
             </div>
-            <div class="row">
+            <div class="row" v-for="(item, index) in listData" :class="rowSelected==item.idProduct?'row-selected':''" @dblclick="selectedRow(item)">
                 <div class="cell" data-title="Full Name">
-                    Vincent Williamson
+                    {{ item.nameProduct }}
                 </div>
                 <div class="cell" data-title="Age">
-                    31
+                    {{ item.author }}
                 </div>
                 <div class="cell" data-title="Job Title">
-                    iOS Developer
+                    {{ item.nameCategory }}
                 </div>
                 <div class="cell" data-title="Location">
-                    Washington
+                    {{ item.publishingCompany }}
+                </div>
+                <div class="cell" data-title="Location">
+                    {{ item.quantitySock }}
                 </div>
                 <div class="cell btn-row" data-title="Location">
-                    <div class="btn-delete" title="Xóa">
+                    <div class="btn-delete" title="Xóa" @click="deleteRow(item)">
                         <i class="fa-solid fa-trash"></i>   
                     </div>
-                    <div class="btn-edit" title="Chỉnh sửa"> 
+                    <div class="btn-edit" title="Chỉnh sửa" @click="selectedRow(item)"> 
                         <i class="fa-solid fa-pen-to-square"></i>  
                     </div>
                     
                 </div>
             </div>
-            <div class="row">
-                <div class="cell" data-title="Full Name">
-                    Joseph Smith
-                </div>
-                <div class="cell" data-title="Age">
-                    27
-                </div>
-                <div class="cell" data-title="Job Title">
-                    Project Manager
-                </div>
-                <div class="cell" data-title="Location">
-                    Somerville, MA
-                </div>
-            </div>
-            <div class="row">
-                <div class="cell" data-title="Full Name">
-                    Justin Black
-                </div>
-                <div class="cell" data-title="Age">
-                    26
-                </div>
-                <div class="cell" data-title="Job Title">
-                    Front-End Developer
-                </div>
-                <div class="cell" data-title="Location">
-                    Los Angeles
-                </div>
-            </div>
-            <div class="row">
-                <div class="cell" data-title="Full Name">
-                    Sean Guzman
-                </div>
-                <div class="cell" data-title="Age">
-                    25
-                </div>
-                <div class="cell" data-title="Job Title">
-                    Web Designer
-                </div>
-                <div class="cell" data-title="Location">
-                    San Francisco
-                </div>
-            </div>
-            <div class="row">
-                <div class="cell" data-title="Full Name">
-                    Keith Carter
-                </div>
-                <div class="cell" data-title="Age">
-                    20
-                </div>
-                <div class="cell" data-title="Job Title">
-                    Graphic Designer
-                </div>
-                <div class="cell" data-title="Location">
-                    New York, NY
-                </div>
-            </div>
-            <div class="row">
-                <div class="cell" data-title="Full Name">
-                    Austin Medina
-                </div>
-                <div class="cell" data-title="Age">
-                    32
-                </div>
-                <div class="cell" data-title="Job Title">
-                    Photographer
-                </div>
-                <div class="cell" data-title="Location">
-                    New York
-                </div>
-            </div>
-            <div class="row">
-                <div class="cell" data-title="Full Name">
-                    Vincent Williamson
-                </div>
-                <div class="cell" data-title="Age">
-                    31
-                </div>
-                <div class="cell" data-title="Job Title">
-                    iOS Developer
-                </div>
-                <div class="cell" data-title="Location">
-                    Washington
-                </div>
-            </div>
-            <div class="row">
-                <div class="cell" data-title="Full Name">
-                    Joseph Smith
-                </div>
-                <div class="cell" data-title="Age">
-                    27
-                </div>
-                <div class="cell" data-title="Job Title">
-                    Project Manager
-                </div>
-                <div class="cell" data-title="Location">
-                    Somerville, MA
-                </div>
-            </div>
+          
         </div>
+    </div>
+    <div class="apui-popup" v-if="isShowPopup">
+            <DetailPopup 
+                :detailData="detailData"
+                :type=2
+                @closePopup="closePopup"
+            />
+    </div>
+    <div class="apui-popup" v-if="isShowPopupConfirm">
+           <div class="popup-confirm">
+                <span>Bạn có chắc chắn muốn xóa <b>{{ nameBookSelect }}?</b> </span>
+                <div class="footer-popup">
+                    <div class="btn-popup btn-cancle" @click="() => {isShowPopupConfirm = false}">Hủy</div>
+                    <div class="btn-popup btn-save" @click="deleteProduct()">Xác nhận</div>
+                </div>
+           </div>
     </div>
 </template>
 
+<script>
+import DetailPopup from '../popups/DetailPopup.vue';
+export default {
+    methods: {
+        selectedRow(item){
+            this.detailData = item;
+            this.isShowPopup = true;
+            this.rowSelected = item.idProduct;
+        },
+        closePopup() {
+            this.isShowPopup = false;
+        },
+        deleteRow(item) {
+            this.nameBookSelect = item.nameProduct;
+            this.isShowPopupConfirm = true;
+        },
+        
+    },
+    props:{
+        listColumns: [],
+        listData: [],
+    },
+    created() {
+    },
+    data() {
+        return{
+            detailData: {},
+            isShowPopup: false,
+            isShowPopupConfirm: false,
+            nameBookSelect: '',
+            rowSelected:'',
+        }
+    },
+    components:{DetailPopup}
+}
+
+</script>
 
 <style scoped>
 a {
@@ -225,7 +167,7 @@ iframe {
 }
 
 .container-table100 {
-    /* width: 100%; */
+    width: 100%;
     min-height: 100vh;
     background: #c4d3f6;
     display: -webkit-box;
@@ -240,7 +182,7 @@ iframe {
 }
 
 .wrap-table100 {
-    /* width:960px; */
+    width: 100%;
     border-radius: 10px;
     overflow: hidden
 }
@@ -249,7 +191,6 @@ iframe {
     width: 90%;
     display: table;
     margin: auto;
-    margin-top: 64px;
 }
 .top-table{
     display: flex;
@@ -348,7 +289,8 @@ iframe {
     font-weight: unset !important;
     padding-top: 10px;
     padding-bottom: 10px;
-    border-bottom: 1px solid #f2f2f2
+    border-bottom: 1px solid #f2f2f2;
+    white-space: nowrap;
 }
 
 .row.header .cell {
@@ -362,26 +304,35 @@ iframe {
 }
 
 .row .cell:nth-child(1) {
-    width: 360px;
+    width: 220px;
     padding-left: 40px
 }
 
 .row .cell:nth-child(2) {
-    width: 160px
+    width: 180px
 }
 
 .row .cell:nth-child(3) {
-    width: 250px
+    width: 180px
 }
 
 .row .cell:nth-child(4) {
-    width: 190px
+    width: 180px
 }
-
+.row .cell:nth-child(5) {
+    width: 120px;
+    text-align: center;
+}
+.row .cell:nth-child(6) {
+    width: 80px;
+    text-align: center;
+}
 .table,
 .row {
 }
-
+.table .row:first-child:hover{
+    background-color: #6c7ae0;
+}
 .row:hover {
     background-color: #ececff;
     cursor: pointer

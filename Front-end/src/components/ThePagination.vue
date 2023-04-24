@@ -1,7 +1,8 @@
 <template>
     <div>
         <Paginate
-            :page-count="20"
+            v-model="page"
+            :page-count="pageCount"
             :page-range="3"
             :click-handler="choosePage"
             :prev-text="'Trước'"
@@ -17,8 +18,18 @@ export default {
     components: {
         Paginate
     },
+    props: ['pageCount'],
+    data() {
+        return {
+            page: 1,
+        }
+    },
     methods: {
-        choosePage() {
+        choosePage(page) {
+            this.$emit('choosePage', page);   
+        },
+        chooseFirstPage() {
+            this.page = 1;
         }
     }
 }

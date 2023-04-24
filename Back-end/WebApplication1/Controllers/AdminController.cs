@@ -6,21 +6,24 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using System.Data;
+using WebApplication1.Filter;
 
 namespace WebApplication1.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
     //[Authorize("ShouldContainRole")]
+    [TypeFilter(typeof(AdminAuthorizationFilterAttribute))]
     public class AdminController : ControllerBase
     {
         IUserRepository _IUserRepository;
         IUserService _IUserService;
-
-        public AdminController(IUserRepository IUserRepository, IUserService userService)
+        IOrderRepository _IOrderRepository;
+        public AdminController(IUserRepository IUserRepository, IUserService userService, IOrderRepository iOrderRepository)
         {
             _IUserRepository = IUserRepository;
-            _IUserService= userService;
+            _IUserService = userService;
+            _IOrderRepository = iOrderRepository;
         }
 
         /// <summary>
@@ -90,14 +93,20 @@ namespace WebApplication1.Controllers
         /// </summary>
         /// <param name="email"></param>
         /// <returns></returns>
-        [HttpDelete("{email}")]
-        public ResponseModel insertAccount(string email )
+        [HttpDelete("{IdUser}")]
+        public ResponseModel deleteUser(string IdUser)
         {
             var response = new ResponseModel();
             try
             {
-                _IUserRepository.DeleteUser(email);
-
+                var SSID = HttpContext.Session.GetString("SSID").ToString();
+                if (SSID == IdUser)
+                {
+                    response.Success = false;
+                    response.Message = "Không thể xóa chính mình";
+                    return response;
+                }
+                _IUserRepository.DeleteUser(IdUser);
                 response.Message = "Đã xóa thành công";
 
             }
@@ -131,5 +140,87 @@ namespace WebApplication1.Controllers
 
             return response;
         }
+
+
+        [HttpGet("getAllOrder")]
+        public ResponseModel getALlOrders()
+        {
+            var response = new ResponseModel();
+            try
+            {
+                response.Data = _IOrderRepository.GetAllOrder();
+
+                response.Status = 200;
+                response.Success = true;
+            }
+            catch (Exception ex)
+            {
+                response.Message = ex.Message;
+            }
+
+            return response;
+        }
+
+        [HttpPost("updateOrder")]
+        public ResponseModel updateOrder(string idorder, int paymentSatus)
+        {
+            var response = new ResponseModel();
+            try
+            {
+                 _IOrderRepository.updateSessionOrder(paymentSatus, idorder);
+
+                response.Status = 200;
+                response.Success = true;
+            }
+            catch (Exception ex)
+            {
+                response.Message = ex.Message;
+            }
+
+            return response;
+        }
+
+        [HttpGet("filterOrder")]
+        public ResponseModel filterOrder(string filter)
+        {
+            var response = new ResponseModel();
+            try
+            {
+                response.Data = _IOrderRepository.SearchByNameAndCode(filter);
+
+                response.Status = 200;
+                response.Success = true;
+            }
+            catch (Exception ex)
+            {
+                response.Message = ex.Message;
+            }
+
+            return response;
+        }
+
+        [HttpGet("dashboard")]
+        public ResponseDashboardModel dashboard()
+        {
+            var response = new ResponseDashboardModel();
+            try
+            {
+                response.orderDashboard = _IOrderRepository.dashboardOrder();
+                response.orderChart = _IOrderRepository.chartOrder();
+                response.userDashboard = _IOrderRepository.chartUser();
+                response.productDashboard = _IOrderRepository.chartProduct();
+                response.Status = 200;
+                response.Success = true;
+                return response;
+            }
+            catch (Exception ex)
+            {
+                response.Message = ex.Message;
+                response.Status = 400;
+                response.Success = false;
+                return response;
+            }
+        }
+
     }
 }

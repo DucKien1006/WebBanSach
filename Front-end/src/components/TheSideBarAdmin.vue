@@ -4,31 +4,37 @@
                     <i class="fas fa-store" v-if="!isShowMini"></i>
                     <i class="fas fa-bars icon" v-if="isShowMini" @click="toggleSlidebar()"></i>
                     <a v-if="!isShowMini">
-                        <h5 class="logo-text">Admin StoreBook</h5>
+                        <h5 class="logo-text">Quản lý cửa hàng</h5>
                     </a>
                 </div>
                 <ul class="sidebar-menu do-nicescrol in" v-if="!isShowMini">
-                    <li title="Dashboard">
+                    <li title="Dashboard" :class="chooseSideBar==1?'active-admin':''" @click="chooseSideBar = 1">
                         <RouterLink class= "admin-link" to="/dashboard">
                             <i class="fas fa-desktop"></i>
-                            <span>Dashboard</span>
+                            <span>Tổng quan</span>
                         </RouterLink>
                     </li>
 
-                    <li class="active">
-                        <RouterLink class= "admin-link" to="/manageuser">
-                            <i class="fas fa-book"></i>
-                             <span>Product</span>
-                        </RouterLink>
-                    </li>
-
-                    <li>
+                    <li class="active" :class="chooseSideBar==2?'active-admin':''" @click="chooseSideBar = 2">
                         <RouterLink class= "admin-link" to="/manageproduct">
-                            <i class="fas fa-users"></i>
-                            <span>User</span>
+                            <i class="fas fa-book"></i>
+                             <span>Quản lý sản phẩm</span>
                         </RouterLink>
                     </li>
 
+                    <li :class="chooseSideBar==3?'active-admin':''" @click="chooseSideBar = 3">
+                        <RouterLink class= "admin-link" to="/manageuser">
+                            <i class="fas fa-users"></i>
+                            <span>Quản lý người dùng</span>
+                        </RouterLink>
+                    </li>
+                    
+                    <li :class="chooseSideBar==4?'active-admin':''" @click="chooseSideBar = 4">
+                        <RouterLink class= "admin-link" to="/manageorder">
+                            <i class="fas fa-cart-plus"></i>
+                            <span>Quản lý đơn hàng</span>
+                        </RouterLink>
+                    </li>
                     <!-- <li>
                         <i class="fas fa-table"></i>
                         <a >
@@ -45,17 +51,22 @@
                     </li>
 
                     <li class="active">
-                        <RouterLink to="/manageuser">
+                        <RouterLink to="/manageproduct">
                             <i class="fas fa-book"></i>
                         </RouterLink>
                     </li>
 
                     <li>
-                        <RouterLink  to="/manageproduct">
+                        <RouterLink  to="/manageuser">
                             <i class="fas fa-users"></i>
                         </RouterLink>
                     </li>
-
+                    
+                    <li>
+                        <RouterLink  to="/manageorder">
+                            <i class="fas fa-cart-plus"></i>
+                        </RouterLink>
+                    </li>
                     <!-- <li>
                         <i class="fas fa-table"></i>
                     </li> -->
@@ -75,6 +86,26 @@ export default {
    },
    data() {
     return {
+        chooseSideBar: 1,
+        listSidebar: [
+            {
+                title: 'Tổng quan',
+                value: 1,
+            },
+            {
+                title: 'Quản lý sản phẩm',
+                value: 2,
+            },
+            {
+                title: 'Quản lý người dùng',
+                value: 3,
+            },
+            {
+                title: 'Quản lý đơn hàng',
+                value: 4,
+            },
+            
+        ]
     }
    },
    methods: {
@@ -90,6 +121,7 @@ export default {
     background-color: transparent;
     color: #ffffff;
     background-color: rgba(0,0,0,.2);
+    user-select: none;
 }
 .admin-side-bar-mini {
     width: 3%;
@@ -99,6 +131,7 @@ export default {
 }
 .admin-side-bar-medium {
     width: 20%;
+    min-width: 240px;
 }
     .admin-side-bar .logo-branch {
     height: 60px;
@@ -217,5 +250,15 @@ export default {
 }
 .admin-link i{
     padding-right: 24px;
+}
+.admin-navbar .sidebar-menu .li-active{
+    background-color: #305f81;
+    border-left: 2px solid #ffffff;
+    font-weight: 600;
+}
+.active-admin{
+    background-color: #1e415b;
+    border-left: 2px solid #ffffff;
+    font-weight: 600;
 }
 </style>

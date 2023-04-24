@@ -31,9 +31,16 @@
 
 
 <script>
+import { useToast } from 'vue-toastification';
+import { checkPermission } from '../apis/accountApi';
 import TheSideBarAdmin from '../components/TheSideBarAdmin.vue';
 import TheUserTable from '../components/TheUserTable.vue';
 export default {
+    setup() {
+    // Option 2 (preferred): Inject the app-provided toast interface and return it from setup
+    const setupToast = useToast()
+    return { setupToast }
+    },
     data() {
         return {
             isShowSideBar: false,
@@ -42,9 +49,27 @@ export default {
     methods: {
         toggleSlidebar() {
             this.isShowSideBar = !this.isShowSideBar;
+        },
+        checkPermission() {
+            const me = this;
+            checkPermission().then(res => {
+                if (res && res.success) {
+
+                }
+                else {
+                    me.setupToast.info('Tài khoản không có quyền đăng nhập trang admin');
+                    me.$router.push('/')
+                }
+            })
         }
     },
+    
     components:{ TheSideBarAdmin, TheUserTable },
+
+    async created() {
+        const me = this;
+        await me.checkPermission();
+    }
 }
 </script>
 
@@ -61,6 +86,8 @@ export default {
     /* background-color: aqua; */
     background-image: url('../assets/img-background.png');
     display: flex;
+    background-size: cover;
+    background-repeat: no-repeat;
 }
 .admin-content {
     color: #fff;

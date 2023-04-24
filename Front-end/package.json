@@ -13,8 +13,10 @@
     "devextreme-vue": "^22.2.4",
     "vue": "^3.2.47",
     "vue-router": "^4.1.6",
+    "vue-toastification": "^2.0.0-rc.5",
     "vuejs-paginate": "^2.1.0",
     "vuejs-paginate-next": "^1.0.2",
+    "vuetify": "^3.1.13",
     "vuex": "^4.0.2"
   },
   "devDependencies": {

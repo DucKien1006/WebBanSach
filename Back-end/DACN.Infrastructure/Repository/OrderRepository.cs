@@ -13,20 +13,22 @@ namespace DACN.Infrastructure.Repository
 {
     public class OrderRepository : BaseRepository<SessionOrder>, IOrderRepository
     {
-        public Boolean AddItems(List<Product> orderItems)
+        public Boolean AddItems(List<Product> orderItems, string userId)
         {
-            string userId = "cefe8f16-c744-11ed-9a0d-d8d09038cbd3";
             var sqlConnector = new MySqlConnection(connectString);
             try
             {
                 var orderDetail = JsonSerializer.Serialize(orderItems).ToString();
+                //byte[] jsonUtf8Bytes = JsonSerializer.SerializeToUtf8Bytes(orderItems);
+                //var orderDetail = System.Text.Encoding.UTF8.GetString(jsonUtf8Bytes);
                 if (CheckOrderExist(userId))
                 {
-                    var totalAmount = CalculationItem(orderItems);
-                    var sqlQuery = "Update SessionOrder " +
-                                   $"Set OrderDetail = '{orderDetail}', TotalPayment = '{totalAmount}'" +
-                                   $"Where IdUser = '{userId}'";
-                    var res = sqlConnector.Query(sqlQuery);
+                    var queryProc = "Proc_Update_SessionOrder";
+                    var parameters = new DynamicParameters();
+                    parameters.Add("v_OrderDetail", orderDetail);
+                    parameters.Add("v_IdUser", userId);
+                    parameters.Add("v_TotalPayment", CalculationItem(orderItems));
+                    sqlConnector.Query(queryProc, param: parameters, commandType: System.Data.CommandType.StoredProcedure);
                 }
                 else
                 {
@@ -36,8 +38,8 @@ namespace DACN.Infrastructure.Repository
                     parameters.Add("v_IdUser", userId);
                     parameters.Add("v_DiscountCombo", 1);
                     parameters.Add("v_TotalPayment", CalculationItem(orderItems));
-                    parameters.Add("v_PaymentType", 1);
-                    parameters.Add("v_PaymentStatus", 1);
+                    parameters.Add("v_PaymentType", 2);
+                    parameters.Add("v_PaymentStatus", null);
                     parameters.Add("v_LastTime", DateTime.Today);
                     parameters.Add("v_PaymentFee", 30000);
 
@@ -55,29 +57,44 @@ namespace DACN.Infrastructure.Repository
 
         public SessionOrder GetItems(string userId)
         {
-            userId = "1cee3429-c5a8-11ed-9a0d-d8d09038cbd3";
             var sqlConnector = new MySqlConnection(connectString);
-            var sqlQuery = $"Select * from SessionOrder where IdUser = '{userId}'";
+            var sqlQuery = $"Select * from SessionOrder where IdUser = '{userId}' and PaymentStatus is null";
             var res = sqlConnector.Query(sqlQuery).FirstOrDefault();
             if(res != null)
             {
                 var sessionOrder = new SessionOrder();
-                sessionOrder.IdSessionOrder = res.IdSessionOrder;
+                sessionOrder.IdOrder = res.IdOrder;
                 sessionOrder.PaymentStatus = res.PaymentStatus;
                 sessionOrder.DiscountCombo = res.DiscountCombo; 
                 sessionOrder.TotalPayment = res.TotalPayment;
                 sessionOrder.PaymentType = res.PaymentType;
                 sessionOrder.PaymentFee = res.PaymentFee;
-                sessionOrder.OrderDetail = JsonSerializer.Deserialize<List<Product>>(res.OrderDetail.ToString());
+                //byte[] jsonUtf8Bytes = System.Text.Encoding.UTF8.GetBytes(res.OrderDetail);
+                //var utf8Reader = new Utf8JsonReader(jsonUtf8Bytes);
+                //sessionOrder.OrderDetail = JsonSerializer.Deserialize<List<Product>>(ref utf8Reader)!;
+                sessionOrder.OrderDetail = JsonSerializer.Deserialize<List<Product>>(res.OrderDetail);
                 return sessionOrder;
             }
             return null;
         }
 
+        public bool Checkout(SessionOrder sessionOrder, string userID)
+        {
+            var sqlConnector = new MySqlConnection(connectString);
+            int option = sessionOrder.PaymentType == 1 ? 0 : 2;
+            var sqlQuery = "Update SessionOrder " +
+                                   $"Set PaymentStatus = '{option}', PaymentType = '{sessionOrder.PaymentType}'" +
+                                   $", FullName = '{sessionOrder.FullName}', PhoneNumber = '{sessionOrder.PhoneNumber}'" +
+                                   $", Address = '{sessionOrder.Address}', Email = '{sessionOrder.Email}'" +
+                                   $"Where IdUser = '{userID}' And PaymentStatus is null";
+            sqlConnector.Query(sqlQuery);
+            return true;
+        }
+
         private Boolean CheckOrderExist(string userId)
         {
             var sqlConnector = new MySqlConnection(connectString);
-            var sqlQuery = $"Select * from SessionOrder where IdUser = '{userId}'";
+            var sqlQuery = $"Select * from SessionOrder where IdUser = '{userId}' and PaymentStatus is null";
             var res = sqlConnector.Query(sqlQuery);
             if(res.Count() > 0)
             {
@@ -94,6 +111,96 @@ namespace DACN.Infrastructure.Repository
                 totalAmount += product.PriceProduct * product.Quantity;
             }
             return totalAmount;
+        }
+
+        public IEnumerable<SessionOrder> GetAllOrder()
+        {
+            var sqlConnector = new MySqlConnection(connectString);
+            var sqlQuery = $"Select * from SessionOrder order by LastTime";
+            var res = sqlConnector.Query<SessionOrder>(sqlQuery).ToList();
+            return res;
+        }
+
+        public IEnumerable<SessionOrder> SearchByNameAndCode(string searchString)
+        {
+            var sqlConnector = new MySqlConnection(connectString);
+            var sqlQuery = $"SELECT * from sessionorder s WHERE s.OrderCode  = {searchString} OR s.Fullname LIKE '%{searchString}%'";
+            var res = sqlConnector.Query<SessionOrder>(sqlQuery).ToList();
+            return res;
+        }
+
+        public void updateSessionOrder(int paymentStatus, string OrderID)
+        {
+            var sqlConnector = new MySqlConnection(connectString);
+            var sqlQuery = $"UPDATE sessionorder s SET PaymentStatus = {paymentStatus} WHERE IdOrder = '{OrderID}'";
+            sqlConnector.Query<SessionOrder>(sqlQuery);
+        }
+
+        public IEnumerable<SessionOrder> GetAllOrdersByUserId(string userId)
+        {
+            var sqlConnector = new MySqlConnection(connectString);
+            var sqlQuery = $"Select * from SessionOrder where IdUser = '{userId}' and PaymentStatus is not null";
+            var res = sqlConnector.Query<SessionOrder>(sqlQuery).ToList();
+            return res;
+        }
+
+        public dynamic dashboardOrder()
+        {
+            var sqlConnector = new MySqlConnection(connectString);
+            var queryProc = "Proc_Dashboard_Order";
+            var res = sqlConnector.Query(queryProc, commandType: System.Data.CommandType.StoredProcedure).FirstOrDefault();
+            return res;
+
+        }
+
+        public dynamic chartOrder()
+        {
+            var sqlConnector = new MySqlConnection(connectString);
+            var queryProc = "Proc_Chart_Order";
+            var res = sqlConnector.Query(queryProc, commandType: System.Data.CommandType.StoredProcedure).ToList();
+            return res;
+        }
+
+        public dynamic chartUser()
+        {
+            var sqlConnector = new MySqlConnection(connectString);
+            var queryProc = "Proc_Chart_User";
+            var res = sqlConnector.Query(queryProc, commandType: System.Data.CommandType.StoredProcedure).FirstOrDefault();
+            return res;
+        }
+
+        public dynamic chartProduct()
+        {
+            var sqlConnector = new MySqlConnection(connectString);
+            var queryProc = "Proc_Chart_Product";
+            var res = sqlConnector.Query(queryProc, commandType: System.Data.CommandType.StoredProcedure).FirstOrDefault();
+            return res;
+        }
+
+        public void updateQuantity(string idProduct, int quantity, int type)
+        {
+            var sqlConnector = new MySqlConnection(connectString);
+            
+            if (type == 1)
+            {
+                var sqlQuery = $"UPDATE product p SET    QuantitySold = p.QuantitySold + {quantity},    QuantitySock = p.QuantitySock - {quantity} WHERE IdProduct = '{idProduct}';";
+                sqlConnector.Query<SessionOrder>(sqlQuery).FirstOrDefault();
+            }
+            else if (type == 2)
+            {
+              
+                    var sqlQuery = $"UPDATE product p SET    QuantitySold = p.QuantitySold - {quantity},    QuantitySock = p.QuantitySock + {quantity} WHERE IdProduct = '{idProduct}';";
+                    sqlConnector.Query<SessionOrder>(sqlQuery).FirstOrDefault();
+                
+            } 
+        }
+
+        public SessionOrder GetOrderByID(string idOrder)
+        {
+            var sqlConnector = new MySqlConnection(connectString);
+            var sqlQuery = $"Select * from SessionOrder where IdOrder = '{idOrder}'";
+            var res = sqlConnector.Query<SessionOrder>(sqlQuery).FirstOrDefault();
+            return res;
         }
     }
 }

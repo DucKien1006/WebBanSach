@@ -10,9 +10,9 @@
                     <div class="total-value">
                         <span>Tổng thanh toán</span>
                         <div>
-                            <span class="value-purchases">5.000.000Đ</span>
+                            <span class="value-purchases">{{ orderDashboard.TotalPayment  || 0 }}Đ</span>
                             <span class="unit-value">
-                                    tháng này</span>
+                                    năm nay</span>
                         </div>
                        
                     </div>
@@ -26,9 +26,9 @@
                     <div class="total-value">
                         <span>Tổng đơn hàng</span>
                         <div>
-                            <span class="value-purchases">500 đơn</span>
+                            <span class="value-purchases">{{ orderDashboard.TotalOrder  || 0 }} đơn</span>
                             <span class="unit-value">
-                                    tháng này</span>
+                                    năm nay</span>
                         </div>
                     </div>
                 </div>
@@ -41,7 +41,7 @@
                     <div class="total-value">
                         <span>Tổng sản phẩm</span>
                         <div>
-                            <span class="value-purchases">500 cuốn</span>
+                            <span class="value-purchases">{{totalProduct}} cuốn</span>
                             
                         </div>
                     </div>
@@ -55,7 +55,7 @@
                     <div class="total-value">
                         <span>Tổng người dùng</span>
                         <div>
-                            <span class="value-purchases">500 người</span>
+                            <span class="value-purchases">{{totalUser}} người</span>
                             
                         </div>
                     </div>
@@ -66,7 +66,9 @@
                     <div class="title-chart">
                         Tổng thanh toán
                     </div>
-                    <SplineChart />
+                    <SplineChart 
+                        :chartOrder="chartOrder"
+                    />
                 </div>
                 <div class="chart-right">
                     <div class="chart-right-1">
@@ -76,6 +78,7 @@
                             </div>
                             <PieChart class="pie-chart"
                             colorPie='#f1536e'
+                            :dataChart="productChart"
                             />
                            
                         </div>
@@ -86,13 +89,16 @@
                             <PieChart 
                                 class="pie-chart"
                                 colorPie='#fda006'
+                                :dataChart="userChart"
                                 />
                         </div>
                     </div>
                     <div class="chart-right-2 item-cart">
                         <div class="title-chart">
                             Tổng kiểu thanh toán
-                            <ProgressBar />
+                            <ProgressBar 
+                                :orderDashboard="orderDashboard"
+                            />
                         </div>
                     </div>
                 </div>
@@ -105,10 +111,95 @@ import TheUserTable from '../../components/TheUserTable.vue';
 import SplineChart from '../../components/charts/SplineChart.vue';
 import PieChart from '../../components/charts/PieChart.vue';
 import ProgressBar from '../../components/charts/ProgressBar.vue';
-import TheTable from '../../components/tables/TheTable.vue'
+import TheTable from '../../components/tables/TheTable.vue';
+import { getCountProduct } from '../../apis/productApi';
+import {getCountUser} from '../../apis/accountApi';
+import {dashboardAdmin} from '../../apis/adminApi'
 export default{
     components:{ TheUserTable, SplineChart, PieChart, ProgressBar, TheTable },
-  
+
+    data() {
+        return {
+            totalProduct: 0,
+            totalUser: 0,
+            orderDashboard: {},
+            chartOrder:[],
+            userChart:[],
+            productChart: [],
+        }
+    },  
+
+    async created() {
+        const me = this;
+        // await getCountProduct().then(res => {
+        //     if (res != null && res.data != null) {
+        //         this.totalProduct = res.data[0].total
+        //     }
+        // })
+
+        // await getCountUser().then(res => {
+        //     if (res != null && res.data != null) {
+        //         this.totalUser = res.data[0].total
+        //     }
+        // })
+
+        await dashboardAdmin().then(res => {
+            if (res && res.success) {
+                if (res.orderDashboard) {
+                    me.orderDashboard = res.orderDashboard;
+                }
+                if (res.orderChart){
+                    me.chartOrder = res.orderChart;
+                    me.fomartChart();
+                }
+                if (res.userDashboard) {
+                    me.totalUser = res.userDashboard.totalUser;
+                    me.fomartdataUserChart(res.userDashboard);
+                }
+                if (res.productDashboard) {
+                    me.totalProduct = res.productDashboard.totalProduct;
+                    me.fomartdataProductChart(res.productDashboard);
+                    
+                }
+            } 
+        })
+    }, 
+    methods: {
+        fomartChart() {
+            const me = this;
+            for (var i = me.chartOrder.length - 1 ; i >= 0; i--) {
+                if (me.chartOrder[i].Total > 0) break;
+                else me.chartOrder[i].Total = null;
+            }
+        },
+        fomartdataUserChart(data){
+            const me = this;
+            me.userChart = [
+                {
+                    title: 'Tổng người dùng',
+                    total: data.totalUser
+                },
+                {
+                    title: 'Tổng người dùng mới trong tháng',
+                    total: data.totalNewUser
+                }
+            ]
+        },
+        fomartdataProductChart(data){
+            const me = this;
+            me.productChart = [
+                {
+                    title: 'Tổng sản phẩm',
+                    total: data.totalProduct
+                },
+                {
+                    title: 'Tổng sản phẩm mới trong tháng',
+                    total: data.totalNewProduct
+                }
+            ]
+        }
+    }
+    
 }
 </script>
 

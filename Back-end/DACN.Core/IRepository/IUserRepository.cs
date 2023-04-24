@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace DACN.Core.IRepository
 {
-    public interface IUserRepository: IBaseRepository<User>
+    public interface IUserRepository : IBaseRepository<User>
     {
         public User validateUser(string email, string pass);
 
@@ -18,12 +18,14 @@ namespace DACN.Core.IRepository
 
         public User getInfo(string email);
 
-        public void DeleteUser(string email);
+        public void DeleteUser(string IdUser);
 
         public void DeleteAll();
 
         public IEnumerable<User> searchByEmail(string search);
 
         public void ChangePassword(string newPass, string email);
+
+        public User getInfoFromSSID(string ssid);
     }
 }

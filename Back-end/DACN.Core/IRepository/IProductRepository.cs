@@ -15,10 +15,11 @@ namespace DACN.Core.IRepository
 
         public void DeleteProduct(string IdProduct) { }
 
+        public object filterByCategory(string filter, int pageNumber, int pageSize, int IdCategory);
+
         public object filter(string filter, int pageNumber, int pageSize);
 
-        public IEnumerable<Product> getByIdCategory(int IdCategory);
 
-        public IEnumerable<Category> getCategory();
+        public IEnumerable<Product> getByIdCategory(int IdCategory);
     }
 }

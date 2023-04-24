@@ -31,6 +31,10 @@ namespace DACN.Infrastructure.Repository
             parameters.Add("v_PriceProduct", product.PriceProduct);
             parameters.Add("v_ImageProduct", product.ImageProduct);
             parameters.Add("v_Author", product.Author);
+            parameters.Add("v_PageNumber", product.PageNumber);
+            parameters.Add("v_PublishingCompany", product.PublishingCompany);
+
+
 
 
             // connect db
@@ -57,6 +61,8 @@ namespace DACN.Infrastructure.Repository
             parameters.Add("v_PriceProduct", product.PriceProduct);
             parameters.Add("v_ImageProduct", product.ImageProduct);
             parameters.Add("v_Author", product.Author);
+            parameters.Add("v_PageNumber", product.PageNumber);
+            parameters.Add("v_PublishingCompany", product.PublishingCompany);
 
             sqlConnector.Query(queryProc, param: parameters, commandType: System.Data.CommandType.StoredProcedure);
 
@@ -74,6 +80,35 @@ namespace DACN.Infrastructure.Repository
             return res;
         }
 
+        public object filterByCategory(string filter, int pageNumber, int pageSize, int IdCategory)
+        {
+            var sqlConnector = new MySqlConnection(base.connectString);
+            var parameters = new DynamicParameters();
+            parameters.Add("v_filter", filter);
+            parameters.Add("v_pageIndex", pageNumber);
+            parameters.Add("v_pageSize", pageSize);
+            parameters.Add("v_IdCategory", IdCategory);
+            parameters.Add("v_TotalRecord", direction: System.Data.ParameterDirection.Output);
+            parameters.Add("v_RecordStart", direction: System.Data.ParameterDirection.Output);
+            parameters.Add("v_RecordEnd", direction: System.Data.ParameterDirection.Output);
+
+            var queryProc = "Proc_Filter_ProductByCategory";
+            var res = sqlConnector.Query<Product>(queryProc, param: parameters, commandType: System.Data.CommandType.StoredProcedure);
+
+            int totalRecord = parameters.Get<int>("@v_TotalRecord");
+            int recordStart = parameters.Get<int>("@v_RecordStart");
+            int recordEnd = parameters.Get<int>("@v_RecordEnd");
+
+            return new
+            {
+                TotalRecord = totalRecord,
+                RecordStart = recordStart,
+                RecordEnd = recordEnd,
+                Data = res
+            };
+        }
+
+
         public object filter(string filter, int pageNumber, int pageSize)
         {
             var sqlConnector = new MySqlConnection(base.connectString);
@@ -85,7 +120,7 @@ namespace DACN.Infrastructure.Repository
             parameters.Add("v_RecordStart", direction: System.Data.ParameterDirection.Output);
             parameters.Add("v_RecordEnd", direction: System.Data.ParameterDirection.Output);
 
-            var queryProc = "Proc_Filter_Product";
+            var queryProc = "Proc_Filter_ProductAll";
             var res = sqlConnector.Query<Product>(queryProc, param: parameters, commandType: System.Data.CommandType.StoredProcedure);
 
             int totalRecord = parameters.Get<int>("@v_TotalRecord");
@@ -118,17 +153,6 @@ namespace DACN.Infrastructure.Repository
             var querySQL = $"DELETE FROM product where product.IdProduct = '{IdProduct}' Limit 1 ";
 
             var res = sqlConnector.Query<Product>(querySQL);
-        }
-
-        public IEnumerable<Category> getCategory()
-        {
-            var sqlConnector = new MySqlConnection(base.connectString);
-
-            var querySQL = $"SELECT * FROM  catagory";
-
-            var res = sqlConnector.Query<Category>(querySQL).ToList();
-
-            return res;
         }
     }
 }

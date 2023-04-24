@@ -59,11 +59,11 @@ namespace DACN.Infrastructure.Repository
             sqlConnector.Query<Employee>(sqlQuery, param: parameters, commandType: System.Data.CommandType.StoredProcedure);
         }
 
-        public void DeleteUser(string email)
+        public void DeleteUser(string IdUser)
         {
             var sqlConnector = new MySqlConnection(base.connectString);
 
-            var sqlQuery = $"DELETE FROM User WHERE Email = '{email}'";
+            var sqlQuery = $"DELETE FROM User WHERE IdUser = '{IdUser}'";
             var res = sqlConnector.Query<User>(sqlQuery).FirstOrDefault();
         }
 
@@ -90,6 +90,15 @@ namespace DACN.Infrastructure.Repository
 
             var sqlQuery = $"UPDATE User u SET Password = '{newPass}' WHERE u.Email = '{email}';";
             var res = sqlConnector.Query<User>(sqlQuery);
+        }
+
+        public User getInfoFromSSID(string ssid)
+        {
+            var sqlConnector = new MySqlConnection(base.connectString);
+
+            var sqlQuery = $"Select * from User Where IdUser = '{ssid}'";
+            var res = sqlConnector.Query<User>(sqlQuery).FirstOrDefault();
+            return res;
         }
     }
 }

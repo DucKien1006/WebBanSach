@@ -7,3 +7,22 @@
 .main-layout-wrapper {
     background-color: #f8f8f8;
 }
+
+.apui-popup{
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    background-color: #f8f8f81e;
+}
+.unit-price{
+    font-weight: 400;
+    font-size: 12px;
+}
+.row-selected{
+    background-color: #d8d8f2 !important;
+}
+input{
+    padding: 4px 8px;
+}

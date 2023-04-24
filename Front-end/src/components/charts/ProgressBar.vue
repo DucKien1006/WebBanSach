@@ -2,18 +2,18 @@
  <DxProgressBar
       id="progress-bar-status"
       :min="0"
-      :max="100"
+      :max="orderDashboard?.TotalPayment"
       :status-format="statusFormat"
-      :value="20"
+      :value="orderDashboard?.TotalShipCode"
       width="90%"
       height="60px"
     />
     <DxProgressBar
       id="progress-bar-status"
       :min="0"
-      :max="100"
+      :max="orderDashboard?.TotalPayment"
       :status-format="statusFormat"
-      :value="80"
+      :value="orderDashboard?.TotalTransfer"
       width="90%"
     />
 </template>
@@ -27,8 +27,11 @@ export default {
     },
     methods: {
         statusFormat(ratio) {
-            return `${ratio * 100}%`;
+            return `${Math.round(ratio * 100)}%`;
             }
+    },
+    props:{
+        orderDashboard:{}
     }
 }
 </script>

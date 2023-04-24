@@ -8,4 +8,29 @@ const service = axios.create({
     }
 })
 
+// config token khi gửi request
+service.interceptors.request.use(
+    config => {
+        const token = localStorage.getItem('token');
+        if (token) {
+            config.headers['Authorization'] = 'Beare ' + token;
+        }
+        return config
+    },
+    error => {
+        console.log('error', error)
+    }
+)
+
+// chỉ lấy data từ response trả về
+service.interceptors.response.use(
+    response => {
+        const res = response.data
+        return res
+    },
+    error => {
+        return Promise.reject(error)
+    }
+)
+
 export default service

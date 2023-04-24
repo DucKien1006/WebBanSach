@@ -1,8 +1,8 @@
 <template>
-    <DxPieChart :data-source="billionaires" type="doughnut"
+    <DxPieChart :data-source="dataPieChart" type="doughnut"
     :customize-point="customizePoint"
     >
-        <DxSeries argument-field="country" value-field="amount" color="#9c9c9c"
+        <DxSeries argument-field="title" value-field="total" color="#9c9c9c"
         >
         </DxSeries>
         <DxLegend
@@ -24,26 +24,37 @@ export default {
     },
     data() {
         return {
-            billionaires: [
+            dataPieChart: [
                 {
-                    country: "China",
-                    amount: 100
+                    title: "China",
+                    total: 100
                 },
                 {
-                    country: "United States",
-                    amount: 18
+                    title: "United States",
+                    total: 18
                 },
             ]
         }
     }, 
     methods: {
         customizePoint(pointInfo) {
-            return pointInfo.value < 100 ? { color: this.colorPie } : { };
+            return this.dataPieChart[1].total == pointInfo.value ? { color: this.colorPie } : { };
         }
     },
     props:{
         colorPie: null,
-    }
+        dataChart: [],
+    },
+    watch:{
+        dataChart: {
+            handler(newQuestion) {
+                // this will be run immediately on component creation.
+                this.dataPieChart = this.dataChart;
+            },
+            // force eager callback execution
+            immediate: true
+        }
+  }
 
 }
 </script>

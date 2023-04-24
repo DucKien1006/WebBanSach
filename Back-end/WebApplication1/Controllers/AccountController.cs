@@ -10,6 +10,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Runtime.CompilerServices;
 using System.Security.Claims;
 using System.Text;
+using WebApplication1.Filter;
 
 namespace WebApplication1.Controllers
 {
@@ -43,22 +44,10 @@ namespace WebApplication1.Controllers
                         new Claim(JwtRegisteredClaimNames.Sub, _configuration["Jwt:Subject"]),
                         new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                         new Claim(JwtRegisteredClaimNames.Iat, DateTime.UtcNow.ToString()),
-                        new Claim("Password", pass),
-                        new Claim("Email", email),
+                        new Claim("SSID", user.IdUser.ToString()),
                     };
                     //create claims details based on the user information
-                    if (user.IsAdmin == 1)
-                    {
-                        var claimsAdmin = new[] {
-                        new Claim(JwtRegisteredClaimNames.Sub, _configuration["Jwt:Subject"]),
-                        new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                        new Claim(JwtRegisteredClaimNames.Iat, DateTime.UtcNow.ToString()),
-                        new Claim("Password", pass),
-                        new Claim("Email", email),
-                        new Claim("Role", "admin")
-                        };
-                        claims = claimsAdmin;
-                    }
+                  
                         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
 
                         var signIn = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
@@ -168,6 +157,48 @@ namespace WebApplication1.Controllers
                 response.Message = ex.Message;
             }
 
+            return response;
+        }
+
+        [TypeFilter(typeof(UserAuthorizationFilterAttribute))]
+        [HttpGet("checkPermission")]
+        public ResponseModel checkPermission()
+        {
+            var response = new ResponseModel();
+
+            try
+            {
+                var SSID = HttpContext.Session.GetString("SSID").ToString();
+                if (SSID != null)
+                {
+                    User newUser = _IUserRepository.getInfoFromSSID(SSID);
+                     
+                    if (newUser != null && newUser.IsAdmin == 1) {
+
+                        response.Message = "Bạn là admin";
+                        response.Success = true;
+                        response.Status = 200;
+                    }
+                    else
+                    {
+                        response.Message = "Tài khoản không có quyền truy cập vào trang admin";
+                        response.Success = false;
+                        response.Status = 301;
+                    }
+                }
+                else
+                {
+                    response.Message = "Tài khoản không có quyền truy cập vào trang admin";
+                    response.Success = false;
+                    response.Status = 302;
+                }
+            }
+            catch ( Exception ex ) {
+
+                response.Message = ex.Message;
+                response.Success = false;
+                response.Status = 400;
+            }
             return response;
         }
     }
