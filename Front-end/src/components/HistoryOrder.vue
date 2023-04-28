@@ -51,20 +51,23 @@ export default {
         mapPaymentStatus(status) {
             let res = '';
             switch (status) {
-                case 0:
+                case 1:
                     res = 'Chưa thanh toán';
                     break;
-                case 1:
+                case 2:
                     res = 'Đã thanh toán';
                     break;
-                case 2:
+                case 3:
                     res = 'Chờ chuyển khoản';
+                    break;
+                case 4:
+                    res = 'Đã hủy';
                     break;
                 default:
                     res = 'Error';
             }
             return res;
-        }
+        },
     }
 }
 </script>

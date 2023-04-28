@@ -13,7 +13,7 @@ namespace DACN.Infrastructure.Repository
 {
     public class OrderRepository : BaseRepository<SessionOrder>, IOrderRepository
     {
-        public Boolean AddItems(List<Product> orderItems, string userId)
+        public SessionOrder AddItems(List<Product> orderItems, string userId)
         {
             var sqlConnector = new MySqlConnection(connectString);
             try
@@ -21,13 +21,17 @@ namespace DACN.Infrastructure.Repository
                 var orderDetail = JsonSerializer.Serialize(orderItems).ToString();
                 //byte[] jsonUtf8Bytes = JsonSerializer.SerializeToUtf8Bytes(orderItems);
                 //var orderDetail = System.Text.Encoding.UTF8.GetString(jsonUtf8Bytes);
+                var order = GetItems(userId);
                 if (CheckOrderExist(userId))
                 {
                     var queryProc = "Proc_Update_SessionOrder";
                     var parameters = new DynamicParameters();
+                    var afterDiscount = CalculationItem(orderItems) - CalculationItem(orderItems) * order.PromotionPercent / 100;
+                    order.TotalPayment = afterDiscount;
+                    order.OrderDetail = orderItems;
                     parameters.Add("v_OrderDetail", orderDetail);
                     parameters.Add("v_IdUser", userId);
-                    parameters.Add("v_TotalPayment", CalculationItem(orderItems));
+                    parameters.Add("v_TotalPayment", afterDiscount);
                     sqlConnector.Query(queryProc, param: parameters, commandType: System.Data.CommandType.StoredProcedure);
                 }
                 else
@@ -45,7 +49,7 @@ namespace DACN.Infrastructure.Repository
 
                     sqlConnector.Query(queryProc, param: parameters, commandType: System.Data.CommandType.StoredProcedure);
                 }
-                return true;
+                return order;
             }
             catch (Exception)
             {
@@ -69,6 +73,7 @@ namespace DACN.Infrastructure.Repository
                 sessionOrder.TotalPayment = res.TotalPayment;
                 sessionOrder.PaymentType = res.PaymentType;
                 sessionOrder.PaymentFee = res.PaymentFee;
+                sessionOrder.PromotionPercent = res.PromotionPercent != null ? Int32.Parse(res.PromotionPercent) : 0;
                 //byte[] jsonUtf8Bytes = System.Text.Encoding.UTF8.GetBytes(res.OrderDetail);
                 //var utf8Reader = new Utf8JsonReader(jsonUtf8Bytes);
                 //sessionOrder.OrderDetail = JsonSerializer.Deserialize<List<Product>>(ref utf8Reader)!;
@@ -81,13 +86,26 @@ namespace DACN.Infrastructure.Repository
         public bool Checkout(SessionOrder sessionOrder, string userID)
         {
             var sqlConnector = new MySqlConnection(connectString);
-            int option = sessionOrder.PaymentType == 1 ? 0 : 2;
+            int option = sessionOrder.PaymentType == 1 ? 1 : 3;
             var sqlQuery = "Update SessionOrder " +
                                    $"Set PaymentStatus = '{option}', PaymentType = '{sessionOrder.PaymentType}'" +
                                    $", FullName = '{sessionOrder.FullName}', PhoneNumber = '{sessionOrder.PhoneNumber}'" +
                                    $", Address = '{sessionOrder.Address}', Email = '{sessionOrder.Email}'" +
                                    $"Where IdUser = '{userID}' And PaymentStatus is null";
             sqlConnector.Query(sqlQuery);
+            var listProduct = JsonSerializer.Deserialize<List<Product>>(sessionOrder.OrderDetail);
+            foreach (var item in listProduct)
+            {
+                if (item != null)
+                {
+                    // 3. Tính lại quantity
+                    var quantityProduct = item.Quantity;
+                    if (quantityProduct != null)
+                    {
+                        updateQuantity(item.IdProduct, quantityProduct, 1);
+                    }
+                }
+            }
             return true;
         }
 
@@ -108,7 +126,8 @@ namespace DACN.Infrastructure.Repository
             var totalAmount = 0;
             foreach (Product product in orderItems)
             {
-                totalAmount += product.PriceProduct * product.Quantity;
+                totalAmount += (product.PriceProduct - product.PriceProduct * product.DiscountSale / 100) * 
+                    product.Quantity;
             }
             return totalAmount;
         }
@@ -142,6 +161,26 @@ namespace DACN.Infrastructure.Repository
             var sqlQuery = $"Select * from SessionOrder where IdUser = '{userId}' and PaymentStatus is not null";
             var res = sqlConnector.Query<SessionOrder>(sqlQuery).ToList();
             return res;
+        }
+
+        public SessionOrder ApplyPromotion(string userId, string code)
+        {
+            var sqlConnector = new MySqlConnection(connectString);
+            var sqlQuery = $"Select * from PromotionCode where PromotionName = '{code}' and IsUsed = 0";
+            var promotion = sqlConnector.Query(sqlQuery).FirstOrDefault();
+            if(promotion == null)
+            {
+                return null;
+            }
+            var order = GetItems(userId);
+            string promotionInfo = $"Giảm giá {promotion.PromotionPercent}% đơn hàng";
+            order.TotalPayment = order.TotalPayment - order.TotalPayment * promotion.PromotionPercent / 100;
+            order.PromotionPercent = promotion.PromotionPercent;
+            sqlQuery = $"Update SessionOrder Set TotalPayment = {order.TotalPayment}, PromotionPercent = '{promotion.PromotionPercent}' Where IdUser = '{userId}' And PaymentStatus is null";
+            sqlConnector.Query(sqlQuery);
+            sqlQuery = $"Update PromotionCode Set IsUsed = 1";
+            sqlConnector.Query(sqlQuery);
+            return order;
         }
 
         public dynamic dashboardOrder()
@@ -201,6 +240,28 @@ namespace DACN.Infrastructure.Repository
             var sqlQuery = $"Select * from SessionOrder where IdOrder = '{idOrder}'";
             var res = sqlConnector.Query<SessionOrder>(sqlQuery).FirstOrDefault();
             return res;
+        }
+
+        public IEnumerable<Promotion> GetAllPromotion()
+        {
+            var sqlConnector = new MySqlConnection(connectString);
+            var sqlQuery = $"Select * from promotioncode order by CreatedDate";
+            var res = sqlConnector.Query<Promotion>(sqlQuery).ToList();
+            return res;
+        }
+
+        public void createNewPromotion(string promotionName, int promotionPercent)
+        {
+            var sqlConnector = new MySqlConnection(connectString);
+            var sqlQuery = $"INSERT promotioncode (ID, PromotionName, IsUsed, PromotionPercent, CreatedDate) VALUES (UUID(), '{promotionName}', null, {promotionPercent}, CurDate());";
+            var res = sqlConnector.Query<Promotion>(sqlQuery);
+        }
+
+        public void deletePrmotion(string ID)
+        {
+            var sqlConnector = new MySqlConnection(connectString);
+            var sqlQuery = $"DELETE FROM promotioncode WHERE ID = '{ID}' LIMIT 1";
+            var res = sqlConnector.Query<Promotion>(sqlQuery);
         }
     }
 }

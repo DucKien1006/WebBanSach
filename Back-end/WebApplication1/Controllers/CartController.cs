@@ -61,6 +61,16 @@ namespace WebApplication1.Controllers
             res.Success = true;
             return Ok(res);
         }
+
+        [HttpPost("applypromotion")]
+        public IActionResult ApplyPromotion(string code)
+        {
+            var res = new ResponseModel();
+            var SSID = HttpContext.Session.GetString("SSID").ToString();
+            res.Data = _iOrderRepository.ApplyPromotion(SSID, code);
+            res.Success = true;
+            return Ok(res);
+        }
         /// <summary>
         /// cập nhật đơn hàng: 
         /// </summary>

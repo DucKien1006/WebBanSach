@@ -26,3 +26,9 @@
 input{
     padding: 4px 8px;
 }
+.btn-insert{
+    background-color: rgb(230, 148, 34) !important;
+}
+.btn-insert:hover{
+    background-color: rgb(176, 111, 19) !important;
+}

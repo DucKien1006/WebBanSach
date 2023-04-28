@@ -6,52 +6,55 @@
                 <div class="cell" v-for="(column, index) in listColumns">
                     {{ column }}
                 </div>
-                <div class="cell">
-                    
+                <div class="cell" >
                 </div>
+                
             </div>
-            <div class="row" v-for="(item, index) in listData" :class="rowSelected==item.idUser?'row-selected':''" @dblclick="selectedRow(item)">
+            <div class="row" v-for="(item, index) in listData">
                 <div class="cell" data-title="Full Name">
-                    {{ item.fullname }}
+                    {{ item.promotionName }}
                 </div>
                 <div class="cell" data-title="Age">
-                    {{ item.email }}
+                    {{ item.isUsed==1?"Đã dùng":"Chưa dùng" }}
                 </div>
                 <div class="cell" data-title="Job Title">
-                    {{ item.phone }}
+                    {{ item.promotionPercent }} %
+                </div>
+                <div class="cell" data-title="Job Title">
+                    {{ formartDate(item.createdDate) }}
+                </div>
+                <!-- <div class="cell" data-title="Location">
+                    {{ enumPaymentStatus[item.paymentStatus] }}
                 </div>
                 <div class="cell" data-title="Location">
-                    {{ item.address1 }}
+                    {{ item.fullName }}
                 </div>
-                <div class="cell" data-title="Location">
+                <div class="cell" data-title="Location" v-if="item.lastTime != null">
+                     {{ formartDate(item.lastTime) }}
+                </div> -->
+                <!-- <div class="cell" data-title="Location">
                     <label class="switch">
                         <input type="checkbox" :checked="item.isAdmin == 1" disabled>
                         <span class="slider round"></span>
                     </label>
-                </div>
-                <div class="cell btn-row" data-title="Location">
-                    <div class="btn-delete" title="Xóa" @click="deleteRow(item)">
+                </div> -->
+                 <div class="cell btn-row" data-title="Location" style="cursor: pointer;"> 
+                     <div class="btn-delete" title="Xóa" @click="deleteRow(item)">
                         <i class="fa-solid fa-trash"></i>   
                     </div>
-                    <div class="btn-edit" title="Chỉnh sửa" @click="selectedRow(item)"> 
+                    <!-- <div class="btn-edit" title="Chỉnh sửa" @click="selectedRow(item)"> 
                         <i class="fa-solid fa-pen-to-square"></i>  
-                    </div>
+                    </div>  -->
                     
-                </div>
+                </div> 
             </div>
           
         </div>
     </div>
-    <div class="apui-popup" v-if="isShowPopup">
-            <DetailUserPopup
-                :detailData="detailData"
-                :type=2
-                @closePopup="closePopup"
-            />
-    </div>
+    
     <div class="apui-popup" v-if="isShowPopupConfirm">
            <div class="popup-confirm">
-                <span>Bạn có chắc chắn muốn xóa <b>{{ nameBookSelect }}?</b> </span>
+                <span>Bạn có chắc chắn muốn xóa mã giảm giá: <b>{{ nameBookSelect }}?</b> </span>
                 <div class="footer-popup">
                     <div class="btn-popup btn-cancle" @click="() => {isShowPopupConfirm = false}">Hủy</div>
                     <div class="btn-popup btn-save" @click="deleteUser()">Xác nhận</div>
@@ -61,8 +64,8 @@
 </template>
 
 <script>
-import { deleteUser } from '../../apis/adminApi';
-import DetailUserPopup from '../popups/DetailUserPopup.vue';
+import { deletePrmotion } from '../../apis/adminApi';
+import DetailOrderPopup from '../popups/DetailOrderPopup.vue';
 import { useToast } from 'vue-toastification';
 export default {
     setup() {
@@ -73,34 +76,38 @@ export default {
     methods: {
         selectedRow(item){
             this.detailData = item;
-            this.isShowPopup = true;
-            this.rowSelected = item.idUser;
+            this.isShowPopup = true; 
+            this.rowSelected = item.idOrder;
         },
         closePopup() {
             this.isShowPopup = false;
         },
         deleteRow(item) {
             this.detailData = item;
-            this.nameBookSelect = item.fullname;
+            this.nameBookSelect = item.promotionName;
             this.isShowPopupConfirm = true;
         },
         deleteUser() {
-            deleteUser(this.detailData.idUser).then((res) => {
-                if (res && res.success) {
-                    this.setupToast.info("Đã xóa thành công");
-                    this.isShowPopupConfirm = false
-                }
-                else {
-                    this.setupToast.error(res.message);
-                    this.isShowPopupConfirm = false
-                }
-               
+            deletePrmotion(this.detailData.id).then((res) => {
+                this.setupToast.info("Đã xóa thành công");
+                this.isShowPopupConfirm = false;
+                this.$emit("reloadData");
             })
+        },
+        reloadData() {
+            this.$emit('reloadData');
+        },
+        formartDate(date) {
+            if (date !=null) {
+                var dateformart = new Date(date);
+                return `${dateformart.getDate()}/${dateformart.getMonth()}/${dateformart.getFullYear()}`
+            }
         }
     },
     props:{
         listColumns: [],
         listData: [],
+        
     },
     created() {
     },
@@ -110,10 +117,23 @@ export default {
             isShowPopup: false,
             isShowPopupConfirm: false,
             nameBookSelect: '',
+            enumPaymentStatus: [
+                 "Đơn hàng mới",
+                 "Chưa thanh toán",
+                 "Đã thanh toán",
+                 "Chờ xác nhận thanh toán",
+                 "Đã hủy",
+            ],
+            enumPaymentType:[
+                "",
+                "Tiền mặt",
+                "Chuyển khoản",
+            ],
             rowSelected: '',
+            
         }
     },
-    components:{ DetailUserPopup }
+    components:{  DetailOrderPopup }
 }
 
 </script>
@@ -216,7 +236,6 @@ iframe {
     width: 90%;
     display: table;
     margin: auto;
-    margin-bottom: 24px;
 }
 .top-table{
     display: flex;
@@ -246,12 +265,12 @@ iframe {
 .top-table .btn-insert{
     height: 32px;
     width: 80px;
-    background-color: aquamarine;
+    background-color: rgb(230, 148, 34);
     align-items: center;
     display: flex;
     justify-content: center;
     border-radius: 4px;
-    color: #ece0e0;
+    color: #f9f0f0;
 }
 @media screen and (max-width: 768px) {
     .table {
@@ -314,10 +333,11 @@ iframe {
     color: #666;
     line-height: 1.2;
     font-weight: unset !important;
-    padding-top: 10px;
-    padding-bottom: 10px;
+    /* padding-top: 10px; */
+    /* padding-bottom: 10px; */
     border-bottom: 1px solid #f2f2f2;
     white-space: nowrap;
+    padding: 10px 24px;
 }
 
 .row.header .cell {
@@ -336,7 +356,7 @@ iframe {
 }
 
 .row .cell:nth-child(2) {
-    width: 180px
+    width: 80px
 }
 
 .row .cell:nth-child(3) {
@@ -466,5 +486,9 @@ input:checked + .slider:before {
 
 .slider.round:before {
   border-radius: 50%;
+}
+.left{
+    text-align: right;
+    
 }
 </style>

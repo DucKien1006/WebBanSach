@@ -35,6 +35,13 @@
                             <span>Quản lý đơn hàng</span>
                         </RouterLink>
                     </li>
+
+                    <li :class="chooseSideBar==5?'active-admin':''" @click="chooseSideBar = 5">
+                        <RouterLink class= "admin-link" to="/managepromotion">
+                            <i class="fas fa-cart-plus"></i>
+                            <span>Quản lý mã giảm giá</span>
+                        </RouterLink>
+                    </li>
                     <!-- <li>
                         <i class="fas fa-table"></i>
                         <a >
@@ -104,6 +111,7 @@ export default {
                 title: 'Quản lý đơn hàng',
                 value: 4,
             },
+            
             
         ]
     }

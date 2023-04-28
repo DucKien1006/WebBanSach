@@ -48,7 +48,7 @@
                 <p>Nguyễn Văn Dũng</p>
                 <p>0123456789</p>
                 <p>ACB</p>
-                <p>{{ totalAmount }}</p>
+                <p>{{ formatCurrencyVi(totalAmountAfterDiscount) }}</p>
               </div>
             </div>
             <img src="../../assets/qr-code.png" alt="">
@@ -64,6 +64,8 @@
 
 <script>
 import { getItems, checkoutApi } from '../../apis/cartApi';
+import formatCurrencyVi from '../../utils/formatCurrencyVi';
+import { mapState } from 'vuex';
 
 export default {
   components: {
@@ -92,6 +94,7 @@ export default {
     }
   },
   methods: {
+    formatCurrencyVi,
     closeCheckoutForm() {
       this.$emit('closeCheckoutForm', 0);
     },
@@ -105,6 +108,7 @@ export default {
     }
   },
   computed: {
+    ...mapState({ totalAmountAfterDiscount: state => state.cart.totalAmount }),
     showQrCode() {
       return this.sessionOrder.paymentType == 2;
     }

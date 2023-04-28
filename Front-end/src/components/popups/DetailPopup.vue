@@ -73,15 +73,24 @@
                     <div class="row-title">
                        <span>Số lượng còn: </span> 
                        <div class="btn-calc" v-if="detailData.quantitySock != 0"  @click="() => {detailData.quantitySock > 0;detailData.quantitySock -= 1}">-</div>
-                        <div class="row-value">{{ detailData.quantitySock }}</div>
+                        <!-- <div class="row-value">{{ detailData.quantitySock }}</div> -->
+                        <input class="row-value-promtion" v-model="detailData.quantitySock" style="padding : 4px 4px;max-width: 34px; min-width: 34px !important;">
+
                         <div class="btn-calc" @click="() => {detailData.quantitySock += 1}">+</div>
                     </div>
 
                     <div class="row-title" v-if="type == 2">
                        <span>Số lượng đã bán:  </span> 
                         <div class="btn-calc" v-if="detailData.quantitySold != 0" @click="() => {detailData.quantitySold -= 1}">-</div>
-                        <div class="row-value">{{ detailData.quantitySold }}</div>
+                        <!-- <div class="row-value">{{ detailData.quantitySold }}</div> -->
+                        <input class="row-value-promtion" v-model="detailData.quantitySold" style=" padding : 4px 4px;max-width: 34px; min-width: 34px !important;">
                         <div class="btn-calc" @click="() => {detailData.quantitySold += 1}">+</div>
+                    </div>
+
+                    <div class="row-title" >
+                       <span>Có áp dụng giảm giá:  </span> 
+                        <input class="row-value-promtion" v-model="detailData.discountSale" style="padding : 4px 4px;max-width: 34px; min-width: 34px !important;">
+                        %
                     </div>
                 </div>
             </div>
@@ -191,6 +200,9 @@ export default {
         },
         async saveProduct(){
             this.productDetail.imageProduct = this.getBase64StringFromDataURL(this.imageProduct);
+            if (this.productDetail.discountSale == null) {
+                this.productDetail.discountSale = 0;
+            }
             // nếu type = 1 thì thêm mới
             if (this.type == 1) {
                 await insertProduct(this.productDetail).then((res) => {
@@ -202,6 +214,7 @@ export default {
                 await updateProduct(this.productDetail).then((res) => {
                     if (res.message == null) {
                         this.setupToast.info("Đã chỉnh sửa thành công");
+                        this.closePopup();
                     }
                 })
             }

@@ -30,6 +30,13 @@ export function getHistory() {
     });
 }
 
+export function applyPromotionCode(payload) {
+    return request({
+        url: `/cart/applypromotion?code=${payload}`,
+        method: 'post',
+    });
+}
+
 export function updateQuantity(idOrder, type) {
     return request({
         url: `/Cart/updateQuantity/${idOrder}?type=${type}`,

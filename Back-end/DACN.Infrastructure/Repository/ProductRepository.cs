@@ -33,6 +33,7 @@ namespace DACN.Infrastructure.Repository
             parameters.Add("v_Author", product.Author);
             parameters.Add("v_PageNumber", product.PageNumber);
             parameters.Add("v_PublishingCompany", product.PublishingCompany);
+            parameters.Add("v_DiscountSale", product.DiscountSale);
 
 
 
@@ -63,6 +64,7 @@ namespace DACN.Infrastructure.Repository
             parameters.Add("v_Author", product.Author);
             parameters.Add("v_PageNumber", product.PageNumber);
             parameters.Add("v_PublishingCompany", product.PublishingCompany);
+            parameters.Add("v_DiscountSale", product.DiscountSale);
 
             sqlConnector.Query(queryProc, param: parameters, commandType: System.Data.CommandType.StoredProcedure);
 

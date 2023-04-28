@@ -34,6 +34,7 @@ namespace DACN.Core.Entity
 
         public string? NameCategory { get; set; }
 
+        public int DiscountSale { get; set; }
 
     }
 }

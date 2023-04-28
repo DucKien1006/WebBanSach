@@ -17,7 +17,7 @@
                     </tr>
                     <tr v-for="(item, index) in cartItems" :key="index" class="row-item">
                         <!-- <td><img :src="item.imageProduct" alt=""></td> -->
-                        <td><img src="https://bookbuy.vn/Res/Images/Product/dung-de-tam-trang-tro-thanh-thai-do_121749_4.jpg"
+                        <td><img :src=formatImage(item.imageProduct)
                                 alt=""></td>
                         <td>
                             <p id="name-item">{{ item.nameProduct }}</p>
@@ -30,7 +30,7 @@
                             </div>
                         </td>
                         <td>
-                            <p id="price-item">{{ formatCurrencyVi(item.priceProduct * item.quantity) }}</p>
+                            <p id="price-item">{{ formatCurrencyVi(priceAfterDiscount(item) * item.quantity) }}</p>
                         </td>
                         <td><i class="far fa-trash-alt" @click="deleteItem(item)"></i></td>
                     </tr>
@@ -49,11 +49,15 @@
             </div>
             <div class="promotion-code-wrapper">
                 <div class="promotion-code">Mã giảm giá</div>
-                <input type="text" placeholder="Nhập vào mã giảm giá">
+                <div class="promotion-field">
+                    <input type="text" placeholder="Nhập vào mã giảm giá" v-model="promotionCode">
+                    <button @click="applyPromotion">Áp dụng</button>
+                </div>
             </div>
+            <p class="promotion-info">{{ promotionInfo }}</p>
             <div class="total-amount-after-discount-wrapper">
                 <div class="total-amount-title">Tổng tiền phải trả: </div>
-                <p class="total-amount">{{ totalAmount }}</p>
+                <p class="total-amount">{{ formatCurrencyVi(totalAmountAfterDiscount) }}</p>
             </div>
             <button @click="showCheckoutForm">Thanh toán</button>
         </div>
@@ -64,7 +68,7 @@
 <script>
 import formatCurrencyVi from '../utils/formatCurrencyVi';
 import { mapActions } from 'vuex';
-import { addItems, getItems } from '../apis/cartApi';
+import { addItems, applyPromotionCode } from '../apis/cartApi';
 import { mapState } from 'vuex';
 import CheckoutPopup from './popups/CheckoutPopup.vue';
 import { useToast } from "vue-toastification";
@@ -74,6 +78,7 @@ export default {
     data() {
         return {
             isShowCheckoutForm: false,
+            promotionCode: '',
         }
     },
     components: {
@@ -83,18 +88,53 @@ export default {
         ...mapActions({
             updateQuantityCart: 'cart/updateQuantityCart',
             updateCartItems: 'cart/updateCartItems',
+            updateTotalAmount: 'cart/updateTotalAmount',
+            updatePromotionPercent: 'cart/updatePromotionPercent',
         }),
         formatCurrencyVi,
+        async applyPromotion() {
+            if (this.promotionCode != '') {
+                await applyPromotionCode(this.promotionCode)
+                    .then(res => {
+                        const toast = useToast();
+                        if (res.success && res.data) {
+                            this.updateTotalAmount(res.data.totalPayment);
+                            this.updatePromotionPercent(res.data.promotionPercent);
+                            toast.success('Áp dụng mã giảm giá thành công', {
+                                position: "top-center",
+                                showCloseButtonOnHover: true,
+                                hideProgressBar: true,
+                                closeButton: "button",
+                                icon: true,
+                                rtl: false,
+                            });
+                        }
+                        else {
+                            toast.error('Mã giảm giá không hợp lệ', {
+                                position: "top-center",
+                                showCloseButtonOnHover: true,
+                                hideProgressBar: true,
+                                closeButton: "button",
+                                icon: true,
+                                rtl: false,
+                            });
+                        }
+                    })
+            }
+        },
         async deleteItem(item) {
             const newCartItems = this.cartItems.filter(i => i.idProduct != item.idProduct);
             this.updateQuantityCart(newCartItems.length);
             this.updateCartItems(newCartItems);
             await addItems(newCartItems)
                 .then(res => {
-                    console.log(res);
+                    this.updateTotalAmount(res.data.totalPayment);
                 });
         },
         async minusQuantity(item) {
+            if (item.quantity === 1) {
+                return;
+            }
             this.cartItems.forEach(i => {
                 if (i.idProduct === item.idProduct && item.quantity > 1) {
                     i.quantity--;
@@ -103,6 +143,7 @@ export default {
             })
             await addItems(this.cartItems)
                 .then(res => {
+                    this.updateTotalAmount(res.data.totalPayment);
                 });
         },
         async increaseQuantity(item) {
@@ -114,11 +155,12 @@ export default {
             })
             await addItems(this.cartItems)
                 .then(res => {
+                    this.updateTotalAmount(res.data.totalPayment);
                 });
         },
         closeCheckoutForm(typeClose) {
             this.isShowCheckoutForm = false;
-            if(typeClose === 0) {
+            if (typeClose === 0) {
                 return;
             }
             const toast = useToast();
@@ -145,7 +187,7 @@ export default {
                     rtl: false,
                 });
             }
-            else if(!localStorage.getItem('token')) {
+            else if (!localStorage.getItem('token')) {
                 toast.error('Bạn cần đăng nhập để thanh toán', {
                     position: "top-center",
                     showCloseButtonOnHover: true,
@@ -156,19 +198,38 @@ export default {
                 });
             }
             else this.isShowCheckoutForm = true;
+        },
+        priceAfterDiscount(item) {
+            return item.priceProduct - (item.priceProduct * item.discountSale / 100);
+        },
+        formatImage(url) {
+            if (url != null) {
+                url = 'data:image/jpeg;base64,' + url;
+            }
+            else{
+                url = 'src/assets/icon_book.png';
+            }
+            return url;
         }
     },
     computed: {
         ...mapState({ cartItems: state => state.cart.cartItems }),
+        ...mapState({ totalAmountAfterDiscount: state => state.cart.totalAmount }),
+        ...mapState({ promotionPercent: state => state.cart.promotionPercent }),
         totalAmount() {
             let total = 0;
             this.cartItems.forEach(i => {
-                total += (i.priceProduct * i.quantity);
+                total += (this.priceAfterDiscount(i) * i.quantity);
             })
             return formatCurrencyVi(total);
         },
+        promotionInfo() {
+            return this.promotionPercent != 0 ? `Giảm ${this.promotionPercent}% giá trị đơn hàng` : null;
+        }
     }
 }
 </script>
 
-<style scoped>@import url(../css/components/cart.css);</style>
+<style scoped>
+@import url(../css/components/cart.css);
+</style>

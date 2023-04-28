@@ -65,13 +65,37 @@
                 </div>
             </div>
         </div>
-        <div class="left-menu">
-            <div class="category-product">
-                <p>Danh mục</p>
+        <div class="list-discount" style="width: 100%">
+            
+            <p class="list-discount-title"> <img src="../assets/Icon_FlashSale_mini.png"/>ƯU ĐÃI</p>
+            <ul class="list-discount-content">
+                <div @click="minusIndex"><i class="fas fa-chevron-left"></i></div>
+                <li v-for="(item, index) in listDiscountProduct" :key="index">
+                    <div class="discount-percent-title">-{{ item.discountSale }}%</div>
+                    <img :src="item.imageProduct" @load="onImageLoad(index)" @click="openDetail(item.idProduct)">
+                    <div class="product-info">
+                        <p id="product-name" class="hover-text-underline" @click="addToCart(item)">{{ item.nameProduct }}
+                        </p>
+                        <p id="product-author" class="hover-text-underline">{{ item.author }}</p>
+                        <div id="product-price">
+                            <p>{{ priceAfterDiscount(item) }}</p>
+                            <p class="old-price">{{ formatCurrencyVi(item.priceProduct) }}</p>
+                            <div class="promotion-percent">-{{ item.discountSale }}%</div>
+                        </div>
+                    </div>
+                </li>
+                <div @click="increaseIndex"><i class="fas fa-chevron-right"></i></div>
+            </ul>
+        </div>
+        <div class="left-menu" ref="leftMenu">
+            <div class="category-product" id="category" ref="category" :class="{ fixed: isFixed, static: !isFixed }">
+                <p class="title-category"><img src="https://cdn0.fahasa.com/skin/frontend/ma_vanese/fahasa/images/ico_menu_red.svg"/>Danh mục</p>
                 <ul>
                     <li v-for="(item, index) in category" :key="index" @click="selectCategory(item)">
-                        <p>{{ item.nameCategory }}</p>
-                        <i class="fas fa-angle-right"></i>
+                        <div :class="{ chooseCategory: item.idCategory === idCategory }">
+                            <p>{{ item.nameCategory }}</p>
+                            <i class="fas fa-angle-right"></i>
+                        </div>
                     </li>
                 </ul>
             </div>
@@ -80,25 +104,18 @@
             </div>
         </div>
         <div class="right-list-wrapper">
-            <!-- <div class="filter">
-                <select name="Sort" id="sortFilter">
-                    <option value="">Sản phẩm mới</option>
-                    <option value="">Sản phẩm bán chạy</option>
-                    <option value="">Sản phẩm xem nhiều</option>
-                    <option value="">Tên từ A-Z</option>
-                    <option value="">Tên từ Z-A</option>
-                    <option value="">Giá tăng dần</option>
-                    <option value="">Giá giảm dần</option>
-                </select>
-            </div> -->
             <div class="list-product">
                 <div class="product" v-for="(item, index) in products" :key="index">
                     <img :src="item.imageProduct" alt="" @click="openDetail(item.idProduct)">
                     <div class="product-info">
-                        <p id="product-name" class="hover-text-underline" @click="addToCart(item)">{{ item.nameProduct }}
+                        <p id="product-name" class="hover-text-underline">{{ item.nameProduct }}
                         </p>
                         <p id="product-author" class="hover-text-underline">{{ item.author }}</p>
-                        <p id="product-price">{{ formatCurrencyVi(item.priceProduct) }}</p>
+                        <div id="product-price">
+                            <p>{{ priceAfterDiscount(item) }}</p>
+                            <p v-if="item.discountSale" class="old-price">{{ formatCurrencyVi(item.priceProduct) }}</p>
+                            <div v-if="item.discountSale" class="promotion-percent">-{{ item.discountSale }}%</div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -113,6 +130,7 @@ import { getProductFilter, getCategory, getProductFilterByCategory } from '../ap
 import formatCurrencyVi from '../utils/formatCurrencyVi';
 import ThePagination from './ThePagination.vue';
 import { mapState, mapActions } from 'vuex';
+
 
 export default {
     name: 'TheContent',
@@ -160,6 +178,10 @@ export default {
             pageCount: 0,
             idCategory: 0,
             slideIndex: 0,
+            isFixed: false,
+            currentIndex: 1,
+            quantityDiscount: 0,
+            listDiscountProduct: []
         };
     },
     created() {
@@ -175,25 +197,58 @@ export default {
             updateCartItems: 'cart/updateCartItems',
             updateListProduct: 'product/SET_LIST_PRODUCT',
         }),
+        minusIndex() {
+            if(this.currentIndex === 1) {
+                this.currentIndex = this.quantityDiscount;
+            }
+            else this.currentIndex--;
+        },
+        increaseIndex() {
+            if(this.currentIndex === this.quantityDiscount) {
+                this.currentIndex = 1;
+            }
+            else this.currentIndex++;
+        },
         formatCurrencyVi,
         openDetail(id) {
             this.$router.push({ path: '/detail', query: { id: id } });
+        },
+        /* wait for image is loaded */
+        onImageLoad(index) {
+            try {
+                if(index > 0) return;
+                const topDiff = this.$refs.category.offsetTop;
+                const width = this.$refs.leftMenu.offsetWidth;
+                window.addEventListener("scroll", () => {
+                    if (window.scrollY > topDiff) {
+                        this.isFixed = true;
+                        this.$refs.category.style.width = width + "px";
+                    }
+                    else {
+                        this.isFixed = false;
+                    }
+                })
+            } catch (error) {
+                console.log(error);
+            }
         },
         showSlides() {
             let i;
             let slides = document.getElementsByClassName("mySlides");
             let dots = document.getElementsByClassName("dot");
-            for (i = 0; i < slides.length; i++) {
-                slides[i].style.display = "none";
+            if (slides.length && dots.length) {
+                for (i = 0; i < slides.length; i++) {
+                    slides[i].style.display = "none";
+                }
+                this.slideIndex++;
+                if (this.slideIndex > slides.length) { this.slideIndex = 1 }
+                for (i = 0; i < dots.length; i++) {
+                    dots[i].className = dots[i].className.replace(" active", "");
+                }
+                slides[this.slideIndex - 1].style.display = "block";
+                dots[this.slideIndex - 1].className += " active";
+                setTimeout(this.showSlides, 2000); // Change image every 2 seconds
             }
-            this.slideIndex++;
-            if (this.slideIndex > slides.length) { this.slideIndex = 1 }
-            for (i = 0; i < dots.length; i++) {
-                dots[i].className = dots[i].className.replace(" active", "");
-            }
-            slides[this.slideIndex - 1].style.display = "block";
-            dots[this.slideIndex - 1].className += " active";
-            setTimeout(this.showSlides, 2000); // Change image every 2 seconds
         },
         async addToCart(item) {
             item.quantity = 1;
@@ -218,10 +273,14 @@ export default {
             await getProductFilter(this.pageNumber, this.pageSize, this.searchKey)
                 .then(res => {
                     if (res.data) {
-                        res.data.data.map(i => i.imageProduct = 'https://bookbuy.vn/Res/Images/Product/dung-de-tam-trang-tro-thanh-thai-do_121749_4.jpg');
+                        res.data.data.map(i => i.imageProduct = this.formatImage(i.imageProduct));
                         this.updateListProduct(res.data.data);
                         let totalRecord = res.data.totalRecord;
                         this.pageCount = Math.ceil(totalRecord / this.pageSize);
+                        const listDiscount = res.data.data.filter(x => x.discountSale && x.quantitySock);
+                        const length = listDiscount.length;
+                        this.quantityDiscount = Math.ceil(length / 5);
+                        this.listDiscountProduct = listDiscount.slice(0, 5);
                     }
                 });
         },
@@ -241,7 +300,7 @@ export default {
             else {
                 await getProductFilterByCategory(this.pageNumber, this.pageSize, this.searchKey, this.idCategory)
                     .then(res => {
-                        res.data.data.map(i => i.imageProduct = 'https://bookbuy.vn/Res/Images/Product/dung-de-tam-trang-tro-thanh-thai-do_121749_4.jpg');
+                        res.data.data.map(i => i.imageProduct = this.formatImage(i.imageProduct));
                         this.updateListProduct(res.data.data);
                     })
             }
@@ -257,12 +316,24 @@ export default {
             else {
                 await getProductFilterByCategory(this.pageNumber, this.pageSize, this.searchKey, item.idCategory)
                     .then(res => {
-                        res.data.data.map(i => i.imageProduct = 'https://bookbuy.vn/Res/Images/Product/dung-de-tam-trang-tro-thanh-thai-do_121749_4.jpg');
+                        res.data.data.map(i => i.imageProduct = this.formatImage(i.imageProduct));
                         this.updateListProduct(res.data.data);
                         let totalRecord = res.data.totalRecord;
                         this.pageCount = Math.ceil(totalRecord / this.pageSize);
                     })
             }
+        },
+        priceAfterDiscount(item) {
+            return formatCurrencyVi(item.priceProduct - (item.priceProduct * item.discountSale / 100));
+        },
+        formatImage(url) {
+            if (url != null) {
+                url = 'data:image/jpeg;base64,' + url;
+            }
+            else{
+                url = 'src/assets/icon_book.png';
+            }
+            return url;
         }
     },
     computed: {
@@ -275,7 +346,7 @@ export default {
             await getProductFilter(this.pageNumber, this.pageSize, newVal)
                 .then(res => {
                     if (res.data) {
-                        res.data.data.map(i => i.imageProduct = 'https://bookbuy.vn/Res/Images/Product/dung-de-tam-trang-tro-thanh-thai-do_121749_4.jpg');
+                        res.data.data.map(i => i.imageProduct = this.formatImage(i.imageProduct));
                         this.updateListProduct(res.data.data);
                         let totalRecord = res.data.totalRecord;
                         this.pageCount = Math.ceil(totalRecord / this.pageSize);
@@ -284,6 +355,10 @@ export default {
                 .catch(error => {
                     console.log(error)
                 });
+        },
+        currentIndex(newVal) {
+            const discountProduct = this.products.filter(x => x.discountSale && x.quantitySock);
+            this.listDiscountProduct = discountProduct.slice((newVal - 1) * 5, newVal * 5);
         }
     }
 }
@@ -291,4 +366,10 @@ export default {
 
 <style scoped>
 @import url(../css/components/content.css);
+.product img{
+    height: 200px;
+}
+.list-discount-content img {
+    min-height: 200px;
+}
 </style>

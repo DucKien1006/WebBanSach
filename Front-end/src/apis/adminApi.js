@@ -57,3 +57,24 @@ export function dashboardAdmin() {
         methods: 'get'
     })
 }
+
+export function getAllPromotion() {
+    return request({
+        url:  `/admin/getALlPromotion`,
+        methods: 'get'
+    })
+}
+
+export function createNewPromotion(param) {
+    return request({
+        url:  `/admin/createNewPromotion/${param}`,
+        method: 'post'
+    })
+}
+
+export function deletePrmotion(param) {
+    return request ({
+        url:  `admin/deletePrmotion/${param}`,
+        method: 'delete'
+    })
+} 

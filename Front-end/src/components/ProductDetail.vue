@@ -3,16 +3,16 @@
         <div class="product-detail-wrapper">
             <div class="product-wrapper">
                 <div class="product-image">
-                    <img src="https://bookbuy.vn/Res/Images/Product/dung-de-tam-trang-tro-thanh-thai-do_121749_4.jpg"
+                    <img :src="formatImage(product.imageProduct)"
                         alt="">
                 </div>
                 <div class="product-detail">
                     <p id="product-name">{{ product.nameProduct }}</p>
                     <p id="product-author">{{ product.author }}</p>
-                    <p id="product-price">{{ formatCurrencyVi(product.priceProduct) }}</p>
-                    <div class="fontsize-12" id="promotion-info">Tiết kiệm:<p id="promotion-amount">14,500 đ (15%)</p>
+                    <p id="product-price">{{ formatCurrencyVi(priceAfterDiscount) }}</p>
+                    <div class="fontsize-12" id="promotion-info">Tiết kiệm:<p id="promotion-amount">{{ formatCurrencyVi(product.priceProduct * product.discountSale / 100) }} ({{ product.discountSale }}%)</p>
                     </div>
-                    <p class="fontsize-12" id="real-price">Giá thị trường: 96,000 đ</p>
+                    <p class="fontsize-12" id="real-price">Giá thị trường: {{ formatCurrencyVi(product.priceProduct) }}</p>
                     <div class="fontsize-12" id="product-status">
                         Tình trạng:
                         <p v-if="product.quantitySock">Còn hàng</p>
@@ -73,11 +73,12 @@ export default {
         ...mapActions({
             updateQuantityCart: 'cart/updateQuantityCart',
             updateCartItems: 'cart/updateCartItems',
+            updateTotalAmount: 'cart/updateTotalAmount',
         }),
         formatCurrencyVi,
         async addToCart() {
+            const toast = useToast();
             if (this.product.quantitySock === 0) {
-                const toast = useToast();
                 toast.error('Sản phẩm hiện đã bán hết', {
                     position: "top-center",
                     timeout: 2000,
@@ -103,9 +104,28 @@ export default {
             }
             await addItems(this.cartItems)
                 .then(res => {
+                    this.updateTotalAmount(res.data.totalPayment);
                 });
             this.updateQuantityCart(this.cartItems.length);
+            toast.success('Thêm vào giỏ hàng thành công', {
+                    position: "top-center",
+                    timeout: 2000,
+                    showCloseButtonOnHover: true,
+                    hideProgressBar: true,
+                    closeButton: "button",
+                    icon: true,
+                    rtl: false
+                });
         },
+        formatImage(url) {
+            if (url != null) {
+                url = 'data:image/jpeg;base64,' + url;
+            }
+            else{
+                url = 'src/assets/icon_book.png';
+            }
+            return url;
+        }
     },
     computed: {
         ...mapState({ cartItems: state => state.cart.cartItems }),
@@ -118,6 +138,9 @@ export default {
             const month = date.getMonth() + 1;
             const year = date.getFullYear();
             return day + "/" + month + "/" + year;
+        },
+        priceAfterDiscount() {
+            return this.product.priceProduct - this.product.priceProduct * this.product.discountSale / 100;
         }
     }
 }

@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using System.Data;
+using System.Text;
 using WebApplication1.Filter;
 
 namespace WebApplication1.Controllers
@@ -221,6 +222,86 @@ namespace WebApplication1.Controllers
                 return response;
             }
         }
+
+        [HttpGet("getALlPromotion")]
+
+        public ResponseModel getALlPromotion()
+        {
+            var response = new ResponseModel();
+            try
+            {
+                response.Data = _IOrderRepository.GetAllPromotion();
+
+                response.Status = 200;
+                response.Success = true;
+            }
+            catch (Exception ex)
+            {
+                response.Message = ex.Message;
+            }
+
+            return response;
+        }
+
+        [HttpPost("createNewPromotion/{promotionPercent}")]
+
+        public ResponseModel createNewPromotion(int promotionPercent)
+        {
+            var response = new ResponseModel();
+            try
+            {
+                var promotionName = GetRandomPassword(8);
+                  _IOrderRepository.createNewPromotion(promotionName, promotionPercent);
+
+                response.Status = 200;
+                response.Success = true;
+            }
+            catch (Exception ex)
+            {
+                response.Message = ex.Message;
+            }
+
+            return response;
+        }
+
+
+        [HttpDelete("deletePrmotion/{ID}")]
+
+        public ResponseModel deletePrmotion(string ID)
+        {
+            var response = new ResponseModel();
+            try
+            {
+                _IOrderRepository.deletePrmotion(ID);
+
+                response.Status = 200;
+                response.Success = true;
+            }
+            catch (Exception ex)
+            {
+                response.Message = ex.Message;
+            }
+
+            return response;
+        }
+
+
+        private string GetRandomPassword(int length)
+        {
+            const string chars = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+            StringBuilder sb = new StringBuilder();
+            Random rnd = new Random();
+
+            for (int i = 0; i < length; i++)
+            {
+                int index = rnd.Next(chars.Length);
+                sb.Append(chars[index]);
+            }
+
+            return sb.ToString();
+        }
+
 
     }
 }

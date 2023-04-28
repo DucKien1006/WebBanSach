@@ -9,7 +9,7 @@ namespace DACN.Core.IRepository
 {
     public interface IOrderRepository :IBaseRepository<SessionOrder>
     {
-        public Boolean AddItems(List<Product> orderItems, string userID);
+        public SessionOrder AddItems(List<Product> orderItems, string userID);
         public SessionOrder GetItems(string userID);
 
         public Boolean Checkout(SessionOrder sessionOrder, string userID);
@@ -22,6 +22,7 @@ namespace DACN.Core.IRepository
 
         public IEnumerable<SessionOrder> GetAllOrdersByUserId(string userID);
 
+        public SessionOrder ApplyPromotion(string userId, string code);
         public dynamic dashboardOrder();
 
         public dynamic chartOrder();
@@ -33,5 +34,11 @@ namespace DACN.Core.IRepository
         public void updateQuantity(string idProduct, int quantity, int type);
 
         public SessionOrder GetOrderByID(string idOrder);
+
+        public IEnumerable<Promotion> GetAllPromotion();
+
+        public void createNewPromotion(string promotionName, int promotionPercent);
+
+        public void deletePrmotion(string ID);
     }
 }

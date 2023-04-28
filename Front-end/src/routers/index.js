@@ -11,6 +11,7 @@ import HistoryOrder from '../components/HistoryOrder.vue'
 import TheManageUser from '../components/tables/TheManageUser.vue'
 import TheManageProduct from '../components/tables/TheManageProduct.vue'
 import TheManageOrder from '../components/tables/TheManageOrder.vue'
+import TheManagePromotion from '../components/tables/TheManagePromotion.vue'
 const routes = [
     {
         path: '/',
@@ -64,6 +65,11 @@ const routes = [
               path: '/manageorder',
               name: 'ManageOrder',
               component: TheManageOrder,
+          },
+          {
+            path: '/managepromotion',
+            name: 'ManagePromotion',
+            component: TheManagePromotion,
           },
         ]
     },

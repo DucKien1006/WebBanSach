@@ -65,6 +65,10 @@ export default {
                 if(res.data) {
                     this.updateQuantityCart(res.data.orderDetail.length);
                     this.updateCartItems(res.data.orderDetail);
+                    this.updateTotalAmount(res.data.totalPayment);
+                    if(res.data.promotionPercent) {
+                        this.updatePromotionPercent(res.data.promotionPercent);
+                    }
                 }
             });
         }
@@ -74,6 +78,8 @@ export default {
         ...mapActions({
             updateQuantityCart: 'cart/updateQuantityCart',
             updateCartItems: 'cart/updateCartItems',
+            updateTotalAmount: 'cart/updateTotalAmount',
+            updatePromotionPercent: 'cart/updatePromotionPercent',
             setSearchKeyWord: 'product/SET_SEARCH_KEYWORD',
         }),
         redirectHomePage() {

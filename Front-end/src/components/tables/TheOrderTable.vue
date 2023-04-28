@@ -273,7 +273,7 @@ iframe {
     display: flex;
     justify-content: center;
     border-radius: 4px;
-    color: #000;
+    color: #f2efef;
 }
 @media screen and (max-width: 768px) {
     .table {
