@@ -1,0 +1,74 @@
+.manage-product{
+    background-color: #ffffffaa;
+    margin: 48px 24px;
+    position: relative;
+    border-radius: 4px;
+}
+.top-table{
+    display: flex;
+    margin: 24px 0 8px 0;
+    float: right;
+    margin-right: 96px;
+    height: 32px;
+    width: 420px;
+    display: flex;
+    justify-content: space-between;
+}
+.top-table input{
+    height: 32px;
+    width: 240px;
+    border-radius: 4px;
+}
+.top-table .search-table{
+    position: relative;
+    
+}
+.top-table .search-table i {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    color: #000;
+}
+.top-table .btn-insert{
+    height: 32px;
+    width: 80px;
+    background-color: rgb(230, 148, 34);
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    border-radius: 4px;
+    color: #f5efef;
+}
+.manage-product .pagination-wrapper{
+    margin-top: 8px;
+    /* float: right; */
+}
+.btn-insert{
+    color: #c5c2c2;
+    padding: 8px 16px;
+    width: fit-content !important;
+    cursor: pointer;
+}
+.btn-insert:hover{
+    background-color: rgb(79, 208, 165);
+}
+.search-table input {
+    outline: none;
+    border: none;
+}
+.search-table input:focus {
+    border: 1px solid #c5c2c2;
+}
+.popup-confirm{
+    /* height: 180px; */
+    height: fit-content;
+    position: relative;
+    background-color: #fff;
+    width: 320px;
+    margin: auto;
+    margin-top: 108px;
+    border-radius: 4px;
+    z-index: 99;
+    color: #000;
+    padding: 24px 24px;
+}

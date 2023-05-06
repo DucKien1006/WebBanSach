@@ -1,0 +1,136 @@
+.checkout-wrapper {
+    position: fixed;
+    z-index: 99;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    background-color: rgba(0,0,0,0.4);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.checkout-form {
+    height: 500px;
+    width: 70%;
+    background-color: #ffffff;
+    border-radius: 5px;
+    padding: 15px 20px;
+}
+
+.checkout-title {
+    display: flex;
+    justify-content: space-between;
+}
+
+.checkout-title p {
+    font-size: 25px;
+    font-weight: bold;
+}
+
+.checkout-title i {
+    cursor: pointer;
+    font-size: 20px;
+}
+
+.main-content {
+    margin-top: 15px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.info-customer {
+    width: 50%;
+}
+
+.info-customer .info-contact {
+    font-size: 20px;
+    margin-bottom: 8px;
+}
+
+.row-info {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 20px;
+}
+
+.row-info label {
+    margin-bottom: 8px;
+}
+
+.row-info input {
+    height: 30px;
+    outline: none;
+    border-radius: 4px;
+    border: 1px solid gray;
+    width: 70%;
+}
+
+.payment-way {
+    width: 50%;
+}
+
+.payment-way .payment-way-title {
+    font-size: 20px;
+    margin-bottom: 8px;
+}
+
+.payment-way .row-way {
+    margin-bottom: 8px;
+}
+
+.payment-way .row-way label {
+    margin-left: 5px;
+}
+
+.payment-way img {
+    width: 150px;
+    height: 150px;
+}
+
+.transfer-way {
+    display: flex;
+    justify-content: space-between;
+}
+
+.info-transfer p {
+    margin-bottom: 8px;
+}
+
+.info-transfer {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.info-transfer p {
+    width: 100%;
+}
+
+.info-transfer .row-right {
+    margin-right: 15px;
+}
+
+.confirm {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.confirm  button {
+    background: #FE642E;
+    border: 1px solid #FE642E;
+    color: #ffffff;
+    padding: 8px 0;
+    width: 150px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.confirm button:hover {
+    background: #c9420d;
+    color: #ffffff;
+}
+
+.bold-text {
+    font-weight: bold;
+}
