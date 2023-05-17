@@ -136,6 +136,21 @@ namespace BookStoreAPI.Controllers
             var response = new ResponseModel();
             try
             {
+<<<<<<< Updated upstream
+=======
+<<<<<<< HEAD
+                // check xem có email đó không
+                var userInfo = _IUserRepository.getInfo(email);
+                if (userInfo == null)
+                {
+                    response.Success = false;
+                    response.Message = $"{email} không tồn tại";
+                    response.Status = 302;
+                    return response;
+                };
+=======
+>>>>>>> 3de0db7d8f96c0b7e40be265b27f507a8c8d46c9
+>>>>>>> Stashed changes
                 bool isValid = _IUserService.RecoverPassword(email);
                 if (isValid)
                 {
@@ -171,6 +186,17 @@ namespace BookStoreAPI.Controllers
                 if (SSID != null)
                 {
                     User newUser = _IUserRepository.getInfoFromSSID(SSID);
+<<<<<<< Updated upstream
+=======
+<<<<<<< HEAD
+
+                    if (newUser != null)
+                    {
+                        response.Data = newUser;
+                    }
+=======
+>>>>>>> 3de0db7d8f96c0b7e40be265b27f507a8c8d46c9
+>>>>>>> Stashed changes
                      
                     if (newUser != null && newUser.IsAdmin == 1) {
 

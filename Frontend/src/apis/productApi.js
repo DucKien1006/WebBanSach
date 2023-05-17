@@ -58,3 +58,11 @@ export function getProductFilterByCategory(pageNumber, pageSize, filter, idCateg
         data: filter
     });
 }
+
+export function getAllCategory(param) {
+    return request({
+        url: '/product/allCategory',
+        method:'get',
+        data: param
+    })
+}

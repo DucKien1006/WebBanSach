@@ -37,3 +37,10 @@ export function register(param) {
         data: param
     })
 }
+
+export function recoverPassword(param) {
+    return request({
+        url: `/account/recoverPassword/${param}`,
+        method: 'get',
+    })
+}

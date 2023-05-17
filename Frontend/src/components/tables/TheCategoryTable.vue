@@ -6,63 +6,74 @@
                 <div class="cell" v-for="(column, index) in listColumns">
                     {{ column }}
                 </div>
-                <div class="cell">
-                    
+                <div class="cell" >
                 </div>
+                
             </div>
-            <div class="row" v-for="(item, index) in listProductData" :class="rowSelected==item.idProduct?'row-selected':''" @dblclick="selectedRow(item)">
+            <div class="row" v-for="(item, index) in listData">
                 <div class="cell" data-title="Full Name">
-                    {{ item.nameProduct }}
+                    {{ index + 1  }}
                 </div>
                 <div class="cell" data-title="Age">
-                    {{ item.author }}
-                </div>
-                <div class="cell" data-title="Job Title">
                     {{ item.nameCategory }}
                 </div>
-                <div class="cell" data-title="Location">
-                    {{ item.titleProduct }}
+                <div class="cell" data-title="Job Title">
+                    {{ item.createdBy }} 
+                </div>
+                
+                <div class="cell" data-title="Job Title">
+                    {{ formartDate(item.createdDate) }}
+                </div>
+                <div class="cell" data-title="Job Title">
+                    {{ item.modifiedBy }} 
+                </div>
+                <div class="cell" data-title="Job Title">
+                    {{ formartDate(item.modifiedDate) }}
+                </div>
+                <!-- <div class="cell" data-title="Location">
+                    {{ enumPaymentStatus[item.paymentStatus] }}
                 </div>
                 <div class="cell" data-title="Location">
-                    {{ item.quantitySock }}
+                    {{ item.fullName }}
                 </div>
-                <div class="cell btn-row" data-title="Location">
-                    <div class="btn-delete" title="Xóa" @click="deleteRow(item)">
+                <div class="cell" data-title="Location" v-if="item.lastTime != null">
+                     {{ formartDate(item.lastTime) }}
+                </div> -->
+                <!-- <div class="cell" data-title="Location">
+                    <label class="switch">
+                        <input type="checkbox" :checked="item.isAdmin == 1" disabled>
+                        <span class="slider round"></span>
+                    </label>
+                </div> -->
+                 <div class="cell btn-row" data-title="Location" style="cursor: pointer;"> 
+                     <div class="btn-delete" title="Xóa" @click="deleteRow(item)">
                         <i class="fa-solid fa-trash"></i>   
                     </div>
-                    <div class="btn-edit" title="Chỉnh sửa" @click="selectedRow(item)"> 
+                    <!-- <div class="btn-edit" title="Chỉnh sửa" @click="selectedRow(item)"> 
                         <i class="fa-solid fa-pen-to-square"></i>  
-                    </div>
+                    </div>  -->
                     
-                </div>
+                </div> 
             </div>
           
         </div>
     </div>
-    <div class="apui-popup" v-if="isShowPopup">
-            <DetailPopup 
-                :detailData="detailData"
-                :type=2
-                @closePopup="closePopup"
-                :listDataCategory="listDataCategory"
-            />
-    </div>
+    
     <div class="apui-popup" v-if="isShowPopupConfirm">
            <div class="popup-confirm">
-                <span>Bạn có chắc chắn muốn xóa <b>{{ nameBookSelect }}?</b> </span>
+                <span>Bạn có chắc chắn muốn xóa mã giảm giá: <b>{{ nameBookSelect }}?</b> </span>
                 <div class="footer-popup">
                     <div class="btn-popup btn-cancle" @click="() => {isShowPopupConfirm = false}">Hủy</div>
-                    <div class="btn-popup btn-save" @click="deleteProduct()">Xác nhận</div>
+                    <div class="btn-popup btn-save" @click="deleteUser()">Xác nhận</div>
                 </div>
            </div>
     </div>
 </template>
 
 <script>
-import DetailPopup from '../popups/DetailPopup.vue';
+import { deleteCategory } from '../../apis/adminApi';
+import DetailOrderPopup from '../popups/DetailOrderPopup.vue';
 import { useToast } from 'vue-toastification';
-import { deleteProduct } from '../../apis/adminApi';
-
 export default {
     setup() {
     // Option 2 (preferred): Inject the app-provided toast interface and return it from setup
@@ -72,40 +83,46 @@ export default {
     methods: {
         selectedRow(item){
             this.detailData = item;
-            this.isShowPopup = true;
-            this.rowSelected = item.idProduct;
+            this.isShowPopup = true; 
+            this.rowSelected = item.idOrder;
         },
         closePopup() {
             this.isShowPopup = false;
         },
         deleteRow(item) {
-            this.nameBookSelect = item.nameProduct;
-            this.rowSelected = item.idProduct;
+            this.detailData = item;
+            this.nameBookSelect = item.nameCategory;
             this.isShowPopupConfirm = true;
         },
-        deleteProduct() {
-            deleteProduct(this.rowSelected).then((res) => {
-                if (res && res.success) {
+        deleteUser() {
+            deleteCategory(this.detailData.idCategory).then((res) => {
+                if (res) {
                     this.setupToast.info("Đã xóa thành công");
                     this.isShowPopupConfirm = false;
-                    this.listProductData = this.listProductData.filter(item => item.idProduct != this.rowSelected);
-                }else 
-                {
-                    this.isShowPopupConfirm = false
+                    this.$emit("reloadData");
+                }
+                else {
                     this.setupToast.error("Có lỗi xảy ra");
                 }
                 
             })
         },
-        
+        reloadData() {
+            this.$emit('reloadData');
+        },
+        formartDate(date) {
+            if (date !=null) {
+                var dateformart = new Date(date);
+                return `${dateformart.getDate()}/${dateformart.getMonth() + 1}/${dateformart.getFullYear()}`
+            }
+        }
     },
     props:{
         listColumns: [],
         listData: [],
-        listDataCategory: [],
+        
     },
     created() {
-        this.listProductData = this.listData;
     },
     data() {
         return{
@@ -113,19 +130,23 @@ export default {
             isShowPopup: false,
             isShowPopupConfirm: false,
             nameBookSelect: '',
-            rowSelected:'',
-            listProductData: [],
+            enumPaymentStatus: [
+                 "Đơn hàng mới",
+                 "Chưa thanh toán",
+                 "Đã thanh toán",
+                 "Chờ xác nhận thanh toán",
+                 "Đã hủy",
+            ],
+            enumPaymentType:[
+                "",
+                "Tiền mặt",
+                "Chuyển khoản",
+            ],
+            rowSelected: '',
+            
         }
     },
-    watch: {
-        listData: {
-            handler(newValue, oldValue) {
-                this.listProductData = newValue;
-            },
-            deep: true
-        }
-    },
-    components:{DetailPopup}
+    components:{  DetailOrderPopup }
 }
 
 </script>
@@ -219,7 +240,9 @@ iframe {
 .wrap-table100 {
     width: 100%;
     border-radius: 10px;
-    overflow: hidden
+    max-height: 540px;
+    overflow-x: auto;
+    min-height: 540px;
 }
 
 .table {
@@ -255,12 +278,12 @@ iframe {
 .top-table .btn-insert{
     height: 32px;
     width: 80px;
-    background-color: aquamarine;
+    background-color: rgb(230, 148, 34);
     align-items: center;
     display: flex;
     justify-content: center;
     border-radius: 4px;
-    color: #fef6f6;
+    color: #f9f0f0;
 }
 @media screen and (max-width: 768px) {
     .table {
@@ -275,7 +298,8 @@ iframe {
 
 .row.header {
     color: #fff;
-    background: #6c7ae0
+    background: #6c7ae0;
+    z-index: 99;
 }
 
 @media screen and (max-width: 768px) {
@@ -322,10 +346,11 @@ iframe {
     color: #666;
     line-height: 1.2;
     font-weight: unset !important;
-    padding-top: 10px;
-    padding-bottom: 10px;
+    /* padding-top: 10px; */
+    /* padding-bottom: 10px; */
     border-bottom: 1px solid #f2f2f2;
     white-space: nowrap;
+    padding: 10px 24px;
 }
 
 .row.header .cell {
@@ -339,37 +364,29 @@ iframe {
 }
 
 .row .cell:nth-child(1) {
-    width: 220px;
-    padding-left: 10px;
-    white-space: nowrap;
+    width: 40px;
+    padding-left: 20px;
+    text-align: center;
 }
 
 .row .cell:nth-child(2) {
-    width: 180px;
-    padding-left: 10px;
-
+    width: 120px
 }
 
 .row .cell:nth-child(3) {
-    width: 180px;
-    padding-left: 10px;
-
+    width: 180px
 }
 
 .row .cell:nth-child(4) {
-    width: 180px;
-    padding-left: 10px;
+    width: 100px
 }
 .row .cell:nth-child(5) {
-    width: 120px;
+    width: 180px;
     text-align: center;
-    padding-left: 10px;
-    
 }
 .row .cell:nth-child(6) {
-    width: 80px;
-    padding-left: 10px;
-
+    width: 100px;
+    text-align: center;
 }
 .table,
 .row {
@@ -424,5 +441,68 @@ iframe {
 }
 .btn-row .btn-edit:hover {
     color: aqua;
+}
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 48px;
+  height: 24px;
+}
+
+.switch input { 
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 4px;
+  bottom: 3px;
+  background-color: white;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+input:checked + .slider {
+  background-color: #2196F3;
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px #2196F3;
+}
+
+input:checked + .slider:before {
+  -webkit-transform: translateX(26px);
+  -ms-transform: translateX(24px);
+  transform: translateX(24px);
+}
+
+/* Rounded sliders */
+.slider.round {
+  border-radius: 34px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}
+.left{
+    text-align: right;
+    
 }
 </style>

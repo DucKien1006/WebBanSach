@@ -1,132 +1,254 @@
 <template>
     <div class="content-wrapper">
+    
         <div class="banner">
+    
             <div class="slideshow-container">
+    
                 <div class="mySlides fade">
+    
                     <img src="../assets/265377-P56GA5-806.jpg" style="width:100%">
+    
                 </div>
+    
                 <div class="mySlides fade">
+    
                     <img src="../assets/265377-P56GA5-807.jpg" style="width:100%">
+    
                 </div>
+    
             </div>
+    
             <br>
+    
             <div style="text-align:center">
+    
                 <span class="dot"></span>
+    
                 <span class="dot"></span>
+    
             </div>
+    
         </div>
+    
         <div class="list-icon-menu">
+    
             <div class="icon-menu">
+    
                 <div class="icon-menu-logo">
-                    <img src="../assets/Icon_FlashSale.png"/>
+    
+                    <img src="../assets/Icon_FlashSale.png" />
+    
                 </div>
+    
                 <div class="icon-menu-title">
+    
                     Giảm giá
+    
                 </div>
+    
             </div>
+    
             <!-- <div class="icon-menu">
-                <div class="icon-menu-logo">
-                    <img src="../assets/icon_Law.jpg"/>
-                </div>
-                <div class="icon-menu-title">
-                    Chính trị và pháp luật
-                </div>
-            </div> -->
+    
+                    <div class="icon-menu-logo">
+    
+                        <img src="../assets/icon_Law.jpg"/>
+    
+                    </div>
+    
+                    <div class="icon-menu-title">
+    
+                        Chính trị và pháp luật
+    
+                    </div>
+    
+                </div> -->
+    
             <div class="icon-menu">
+    
                 <div class="icon-menu-logo">
-                    <img src="../assets/Icon_bang.png"/>
+    
+                    <img src="../assets/Icon_bang.png" />
+    
                 </div>
+    
                 <div class="icon-menu-title">
+    
                     Khoa học công nghệ
+    
                 </div>
+    
             </div>
+    
             <div class="icon-menu">
+    
                 <div class="icon-menu-logo">
-                    <img src="../assets/Icon_KinhTe.png"/>
+    
+                    <img src="../assets/Icon_KinhTe.png" />
+    
                 </div>
+    
                 <div class="icon-menu-title">
+    
                     Kinh tế
+    
                 </div>
+    
             </div>
+    
             <div class="icon-menu">
+    
                 <div class="icon-menu-logo">
-                    <img src="../assets/ico_giaotrinh.svg"/>
+    
+                    <img src="../assets/ico_giaotrinh.svg" />
+    
                 </div>
+    
                 <div class="icon-menu-title">
+    
                     Giáo trình
+    
                 </div>
+    
             </div>
+    
             <div class="icon-menu">
+    
                 <div class="icon-menu-logo">
-                    <img src="../assets/ico_dochoi.svg"/>
+    
+                    <img src="../assets/ico_dochoi.svg" />
+    
                 </div>
+    
                 <div class="icon-menu-title">
+    
                     Thiếu nhi
+    
                 </div>
+    
             </div>
+    
         </div>
+    
         <div class="list-discount" style="width: 100%">
-            
-            <p class="list-discount-title"> <img src="../assets/Icon_FlashSale_mini.png"/>ƯU ĐÃI</p>
+    
+    
+    
+            <p class="list-discount-title"> <img src="../assets/Icon_FlashSale_mini.png" />ƯU ĐÃI</p>
+    
             <ul class="list-discount-content">
+    
                 <div @click="minusIndex"><i class="fas fa-chevron-left"></i></div>
+    
                 <li v-for="(item, index) in listDiscountProduct" :key="index">
+    
                     <div class="discount-percent-title">-{{ item.discountSale }}%</div>
+    
                     <img :src="item.imageProduct" @load="onImageLoad(index)" @click="openDetail(item.idProduct)">
+    
                     <div class="product-info">
+    
                         <p id="product-name" class="hover-text-underline">{{ item.nameProduct }}
+    
                         </p>
+    
                         <p id="product-author" class="hover-text-underline">{{ item.author }}</p>
+    
                         <div id="product-price">
+    
                             <p>{{ priceAfterDiscount(item) }}</p>
+    
                             <p class="old-price">{{ formatCurrencyVi(item.priceProduct) }}</p>
+    
                             <div class="promotion-percent">-{{ item.discountSale }}%</div>
+    
                         </div>
+    
                     </div>
+    
                 </li>
+    
                 <div @click="increaseIndex"><i class="fas fa-chevron-right"></i></div>
+    
             </ul>
+    
         </div>
+    
         <div class="left-menu" ref="leftMenu">
+    
             <div class="category-product" id="category" ref="category" :class="{ fixed: isFixed, static: !isFixed }">
-                <p class="title-category"><img src="https://cdn0.fahasa.com/skin/frontend/ma_vanese/fahasa/images/ico_menu_red.svg"/>Danh mục</p>
+    
+                <p class="title-category"><img src="https://cdn0.fahasa.com/skin/frontend/ma_vanese/fahasa/images/ico_menu_red.svg" />Danh mục</p>
+    
                 <ul>
+    
                     <li v-for="(item, index) in category" :key="index" @click="selectCategory(item)">
+    
                         <div :class="{ chooseCategory: item.idCategory === idCategory }">
+    
                             <p>{{ item.nameCategory }}</p>
+    
                             <i class="fas fa-angle-right"></i>
+    
                         </div>
+    
                     </li>
+    
                 </ul>
+    
             </div>
+    
             <div class="price-product">
-
+    
+    
+    
             </div>
+    
         </div>
+    
         <div class="right-list-wrapper">
+    
             <div class="list-product">
+    
                 <div class="product" v-for="(item, index) in products" :key="index">
+    
                     <img :src="item.imageProduct" alt="" @click="openDetail(item.idProduct)">
+    
                     <div class="product-info">
+    
                         <p id="product-name" class="hover-text-underline">{{ item.nameProduct }}
+    
                         </p>
+    
                         <p id="product-author" class="hover-text-underline">{{ item.author }}</p>
+    
                         <div id="product-price">
+    
                             <p>{{ priceAfterDiscount(item) }}</p>
+    
                             <p v-if="item.discountSale" class="old-price">{{ formatCurrencyVi(item.priceProduct) }}</p>
+    
                             <div v-if="item.discountSale" class="promotion-percent">-{{ item.discountSale }}%</div>
+    
                         </div>
+    
                     </div>
+    
                 </div>
+    
             </div>
+    
             <ThePagination :page-count="pageCount" @choosePage="choosePage" ref="pagination" class="pagination-wrapper" />
+    
         </div>
+    
     </div>
 </template>
 
 <script>
 import { addItems } from '../apis/cartApi';
-import { getProductFilter, getCategory, getProductFilterByCategory } from '../apis/productApi';
+import { getProductFilter, getCategory, getProductFilterByCategory, getAllCategory } from '../apis/productApi';
 import formatCurrencyVi from '../utils/formatCurrencyVi';
 import ThePagination from './ThePagination.vue';
 import { mapState, mapActions } from 'vuex';
@@ -139,40 +261,41 @@ export default {
     },
     data() {
         return {
-            category: [
-                {
-                    idCategory: 0,
-                    nameCategory: 'Tất cả'
-                },
-                {
-                    idCategory: 1,
-                    nameCategory: 'Sách Chính trị và Pháp luật'
-                },
-                {
-                    idCategory: 2,
-                    nameCategory: 'Sách Khoa học - Công nghệ'
-                },
-                {
-                    idCategory: 3,
-                    nameCategory: 'Sách văn hóa và nghệ thuật'
-                },
-                {
-                    idCategory: 4,
-                    nameCategory: 'Sách kinh tế'
-                },
-                {
-                    idCategory: 5,
-                    nameCategory: 'Sách Giáo trình'
-                },
-                {
-                    idCategory: 6,
-                    nameCategory: 'Tiểu thuyết'
-                },
-                {
-                    idCategory: 7,
-                    nameCategory: 'Sách Thiếu nhi'
-                },
-            ],
+            // category: [
+            //     {
+            //         idCategory: 0,
+            //         nameCategory: 'Tất cả'
+            //     },
+            //     {
+            //         idCategory: 1,
+            //         nameCategory: 'Sách Chính trị và Pháp luật'
+            //     },
+            //     {
+            //         idCategory: 2,
+            //         nameCategory: 'Sách Khoa học - Công nghệ'
+            //     },
+            //     {
+            //         idCategory: 3,
+            //         nameCategory: 'Sách văn hóa và nghệ thuật'
+            //     },
+            //     {
+            //         idCategory: 4,
+            //         nameCategory: 'Sách kinh tế'
+            //     },
+            //     {
+            //         idCategory: 5,
+            //         nameCategory: 'Sách Giáo trình'
+            //     },
+            //     {
+            //         idCategory: 6,
+            //         nameCategory: 'Tiểu thuyết'
+            //     },
+            //     {
+            //         idCategory: 7,
+            //         nameCategory: 'Sách Thiếu nhi'
+            //     },
+            // ],
+            category: [],
             pageNumber: 1,
             pageSize: 20,
             pageCount: 0,
@@ -188,6 +311,7 @@ export default {
         // this.getCategory();
         this.getAllProduct();
         this.toggleLoading(true);
+        this.getAllCategory();
     },
     mounted() {
         this.showSlides();
@@ -199,18 +323,16 @@ export default {
             updateListProduct: 'product/SET_LIST_PRODUCT',
             toggleLoading: 'loading/toggleLoading',
         }),
-        
+
         minusIndex() {
-            if(this.currentIndex === 1) {
+            if (this.currentIndex === 1) {
                 this.currentIndex = this.quantityDiscount;
-            }
-            else this.currentIndex--;
+            } else this.currentIndex--;
         },
         increaseIndex() {
-            if(this.currentIndex === this.quantityDiscount) {
+            if (this.currentIndex === this.quantityDiscount) {
                 this.currentIndex = 1;
-            }
-            else this.currentIndex++;
+            } else this.currentIndex++;
         },
         formatCurrencyVi,
         openDetail(id) {
@@ -219,17 +341,16 @@ export default {
         /* wait for image is loaded */
         onImageLoad(index) {
             try {
-                if(index > 0) return;
+                if (index > 0) return;
                 const topDiff = this.$refs.category.offsetTop;
                 const width = this.$refs.leftMenu.offsetWidth;
                 window.addEventListener("scroll", () => {
                     if (window.scrollY > topDiff) {
                         this.isFixed = true;
-                        if (this.$refs.category != null && this.$refs.category.style != null ){
+                        if (this.$refs.category != null && this.$refs.category.style != null) {
                             this.$refs.category.style.width = width + "px";
-                        } 
-                    }
-                    else {
+                        }
+                    } else {
                         this.isFixed = false;
                     }
                 })
@@ -311,8 +432,7 @@ export default {
             this.pageNumber = page;
             if (this.idCategory === 0) {
                 await this.getAllProduct();
-            }
-            else {
+            } else {
                 await getProductFilterByCategory(this.pageNumber, this.pageSize, this.searchKey, this.idCategory)
                     .then(res => {
                         this.toggleLoading(false);
@@ -330,8 +450,7 @@ export default {
             if (item.idCategory === 0) {
                 this.toggleLoading(false);
                 await this.getAllProduct();
-            }
-            else {
+            } else {
                 await getProductFilterByCategory(this.pageNumber, this.pageSize, this.searchKey, item.idCategory)
                     .then(res => {
                         this.toggleLoading(false);
@@ -350,18 +469,27 @@ export default {
         formatImage(url) {
             if (url != null) {
                 url = 'data:image/jpeg;base64,' + url;
-            }
-            else{
+            } else {
                 url = 'src/assets/icon_book.png';
             }
             return url;
+        },
+        getAllCategory() {
+            getAllCategory().then((res) => {
+                if (res && res.success) {
+                    this.category = res.data;
+                }
+                else {
+
+                }
+            })
         }
     },
     computed: {
         ...mapState({ products: state => state.product.listProduct }),
         ...mapState({ searchKey: state => state.product.searchKeyWord }),
         ...mapState({ cartItems: state => state.cart.cartItems }),
-        ...mapState({isLoading: state => state.loading.isLoading}),
+        ...mapState({ isLoading: state => state.loading.isLoading }),
     },
     watch: {
         async searchKey(newVal) {
@@ -388,9 +516,10 @@ export default {
 
 <style scoped>
 @import url(../css/components/content.css);
-.product img{
+.product img {
     height: 200px;
 }
+
 .list-discount-content img {
     min-height: 200px;
 }

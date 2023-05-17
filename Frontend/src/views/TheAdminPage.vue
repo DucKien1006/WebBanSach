@@ -14,7 +14,7 @@
                     <div class="avatar-admin">
                         <div class="avatar-img"></div>
                         <div class="admin-name">
-                            Phạm Bình
+                           Xin chào <b>{{ nameUser }}</b> 
                         </div>
                     </div>
                 </div>
@@ -48,6 +48,7 @@ export default {
     data() {
         return {
             isShowSideBar: false,
+            nameUser: 'Đức Kiên',
         }
     },
     methods: {
@@ -58,7 +59,7 @@ export default {
             const me = this;
             checkPermission().then(res => {
                 if (res && res.success) {
-
+                    me.nameUser = res.data?.fullname;
                 }
                 else {
                     me.setupToast.info('Tài khoản không có quyền đăng nhập trang admin');
