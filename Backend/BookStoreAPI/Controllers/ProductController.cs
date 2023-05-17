@@ -149,6 +149,32 @@ namespace BookStoreAPI.Controllers
             return response;
         }
 
+<<<<<<< Updated upstream
+=======
+<<<<<<< HEAD
+        [HttpGet("allCategory")]
+        public ResponseModel allCategory()
+        {
+            ResponseModel response = new ResponseModel();
+
+            try
+            {
+                response.Data = _IProductRepository.getAllCategory();
+                response.Status = 200;
+                response.Success = true;
+            }
+            catch (Exception e)
+            {
+                response.Message = e.Message;
+                response.Status = 400;
+                response.Success = false;
+            }
+
+            return response;
+        }
+=======
+>>>>>>> 3de0db7d8f96c0b7e40be265b27f507a8c8d46c9
+>>>>>>> Stashed changes
 
     }
 }

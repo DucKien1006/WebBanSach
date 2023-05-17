@@ -13,7 +13,15 @@ namespace BookStoreInfrastructure.Repository
     public class BaseRepository<T> : IBaseRepository<T> where T : class
     {
         // localhost:
+<<<<<<< Updated upstream
         public string connectString = "Server=localhost; User ID=root; Password=123456; Database=book_store";
+=======
+<<<<<<< HEAD
+        public string connectString = "Server=localhost; User ID=root; Password=binh1008; Database=book_store";
+=======
+        public string connectString = "Server=localhost; User ID=root; Password=123456; Database=book_store";
+>>>>>>> 3de0db7d8f96c0b7e40be265b27f507a8c8d46c9
+>>>>>>> Stashed changes
 
         //public string connectString = "Server=us-cdbr-east-06.cleardb.net;User=bc388b14261edc;Password=3435ccbb;Database=heroku_8237f81fa52e4e9";
         public dynamic Count()

@@ -85,3 +85,17 @@ export function deleteProduct(param) {
         method: 'delete'
     })
 }
+
+export function createNewCategory(param) {
+    return request({
+        url:  `/admin/createNewCategory/${param}`,
+        method: 'post'
+    })
+}
+
+export function deleteCategory(param) {
+    return request({
+        url:  `/admin/deleteCategory/${param}`,
+        method: 'delete'
+    })
+}

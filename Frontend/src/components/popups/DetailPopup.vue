@@ -28,10 +28,10 @@
                         Thể loại:
                     </div>
                     <DxSelectBox
-                        :data-source="listCategory"
+                        :data-source="listDataCategory"
                         :value="detailData.idCategory"
-                        display-expr="Title"
-                        value-expr="ID"
+                        display-expr="nameCategory"
+                        value-expr="idCategory"
                         v-model="detailData.idCategory"
                     />
                     <!-- <input class="row-value" v-model="detailData.nameCategory"  /> -->
@@ -124,35 +124,35 @@ export default {
         return {
             productDetail: null,
             imageProduct: null,
-            listCategory: [{
-                ID: 1,
-                Title: 'Sách chính trị pháp luật',
-                }, 
-                {
-                ID: 2,
-                Title: 'Sách khoa học công nghệ kinh tế',
-                },
-                {
-                ID: 3,
-                Title: 'Sách văn học nghệ thuật',
-                },
-                {
-                ID: 4,
-                Title: 'Sách văn học xã hội lịch sử',
-                },
-                {
-                ID: 5,
-                Title: 'Sách giáo trình',
-                },
-                {
-                ID: 6,
-                Title: 'Sách truyện tiểu thuyết',
-                },
-                {
-                ID: 7,
-                Title: 'Sách thiếu nhi',
-                }
-            ]
+            // listCategory: [{
+            //     ID: 1,
+            //     Title: 'Sách chính trị pháp luật',
+            //     }, 
+            //     {
+            //     ID: 2,
+            //     Title: 'Sách khoa học công nghệ kinh tế',
+            //     },
+            //     {
+            //     ID: 3,
+            //     Title: 'Sách văn học nghệ thuật',
+            //     },
+            //     {
+            //     ID: 4,
+            //     Title: 'Sách văn học xã hội lịch sử',
+            //     },
+            //     {
+            //     ID: 5,
+            //     Title: 'Sách giáo trình',
+            //     },
+            //     {
+            //     ID: 6,
+            //     Title: 'Sách truyện tiểu thuyết',
+            //     },
+            //     {
+            //     ID: 7,
+            //     Title: 'Sách thiếu nhi',
+            //     }
+            // ]
         }
     },
     setup() {
@@ -163,6 +163,7 @@ export default {
     props: {
         detailData: {},
         type: 0, // 1: thêm mới; 2: chỉnh sửa
+        listDataCategory: null,
     },
     created() {
         this.productDetail = this.detailData;
@@ -229,6 +230,11 @@ export default {
     },
     components:{
         DxSelectBox
+    },
+    watch:{
+        listDataCategory(newVal) {
+            this.listDataCategory = newVal;
+        }
     }
 }
 </script>

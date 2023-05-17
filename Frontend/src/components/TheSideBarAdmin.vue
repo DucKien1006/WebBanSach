@@ -35,7 +35,12 @@
                             <span>Quản lý đơn hàng</span>
                         </RouterLink>
                     </li>
-
+                    <li :class="chooseSideBar==6?'active-admin':''" @click="chooseSideBar = 6">
+                        <RouterLink class= "admin-link" to="/managecategory">
+                            <i class="fa-solid fa-folder-open"></i>
+                            <span>Quản lý danh mục</span>
+                        </RouterLink>
+                    </li>
                     <li :class="chooseSideBar==5?'active-admin':''" @click="chooseSideBar = 5">
                         <RouterLink class= "admin-link" to="/managepromotion">
                             <i class="fas fa-cart-plus"></i>

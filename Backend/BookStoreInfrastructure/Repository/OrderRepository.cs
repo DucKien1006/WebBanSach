@@ -26,9 +26,22 @@ namespace BookStoreInfrastructure.Repository
                 var orderDetail = JsonSerializer.Serialize(orderItems).ToString();
                 //byte[] jsonUtf8Bytes = JsonSerializer.SerializeToUtf8Bytes(orderItems);
                 //var orderDetail = System.Text.Encoding.UTF8.GetString(jsonUtf8Bytes);
+<<<<<<< Updated upstream
                 var order = GetItems(userId);
                 if (CheckOrderExist(userId))
                 {
+=======
+<<<<<<< HEAD
+                SessionOrder order = new();
+                if (CheckOrderExist(userId))
+                {
+                    order = GetItems(userId);
+=======
+                var order = GetItems(userId);
+                if (CheckOrderExist(userId))
+                {
+>>>>>>> 3de0db7d8f96c0b7e40be265b27f507a8c8d46c9
+>>>>>>> Stashed changes
                     var queryProc = "Proc_Update_SessionOrder";
                     var parameters = new DynamicParameters();
                     var afterDiscount = CalculationItem(orderItems) - CalculationItem(orderItems) * order.PromotionPercent / 100;
@@ -53,6 +66,13 @@ namespace BookStoreInfrastructure.Repository
                     parameters.Add("v_PaymentFee", 30000);
 
                     sqlConnector.Query(queryProc, param: parameters, commandType: System.Data.CommandType.StoredProcedure);
+<<<<<<< Updated upstream
+=======
+<<<<<<< HEAD
+                    order = GetItems(userId);
+=======
+>>>>>>> 3de0db7d8f96c0b7e40be265b27f507a8c8d46c9
+>>>>>>> Stashed changes
                 }
                 return order;
             }
@@ -61,7 +81,15 @@ namespace BookStoreInfrastructure.Repository
 
                 throw;
             }
+<<<<<<< Updated upstream
             
+=======
+<<<<<<< HEAD
+
+=======
+            
+>>>>>>> 3de0db7d8f96c0b7e40be265b27f507a8c8d46c9
+>>>>>>> Stashed changes
         }
 
         public SessionOrder GetItems(string userId)

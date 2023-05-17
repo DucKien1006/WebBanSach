@@ -17,8 +17,7 @@
                     </tr>
                     <tr v-for="(item, index) in cartItems" :key="index" class="row-item">
                         <!-- <td><img :src="item.imageProduct" alt=""></td> -->
-                        <td><img :src=formatImage(item.imageProduct)
-                                alt=""></td>
+                        <td><img :src=formatImage(item.imageProduct) alt=""></td>
                         <td>
                             <p id="name-item">{{ item.nameProduct }}</p>
                         </td>
@@ -95,7 +94,7 @@ export default {
         formatCurrencyVi,
         async applyPromotion() {
             this.toggleLoading(true);
-            if (this.promotionCode != '' && this.promotionCode.length  == 8) {
+            if (this.promotionCode != '' && this.promotionCode.length == 8) {
                 await applyPromotionCode(this.promotionCode)
                     .then(res => {
                         this.toggleLoading(false);
@@ -122,19 +121,19 @@ export default {
                                 rtl: false,
                             });
                         }
-                       
+
                     })
             } else {
                 this.toggleLoading(false);
                 const toast = useToast();
-                            toast.error('Mã giảm giá phải là 8 kí tự', {
-                                position: "top-center",
-                                showCloseButtonOnHover: true,
-                                hideProgressBar: true,
-                                closeButton: "button",
-                                icon: true,
-                                rtl: false,
-                            });
+                toast.error('Mã giảm giá phải là 8 kí tự', {
+                    position: "top-center",
+                    showCloseButtonOnHover: true,
+                    hideProgressBar: true,
+                    closeButton: "button",
+                    icon: true,
+                    rtl: false,
+                });
             }
         },
         async deleteItem(item) {
@@ -144,7 +143,7 @@ export default {
             this.updateCartItems(newCartItems);
             await addItems(newCartItems)
                 .then(res => {
-                this.toggleLoading(false);
+                    this.toggleLoading(false);
                     this.updateTotalAmount(res.data.totalPayment);
                 });
         },
@@ -227,7 +226,7 @@ export default {
             if (url != null) {
                 url = 'data:image/jpeg;base64,' + url;
             }
-            else{
+            else {
                 url = 'src/assets/icon_book.png';
             }
             return url;
@@ -237,7 +236,7 @@ export default {
         ...mapState({ cartItems: state => state.cart.cartItems }),
         ...mapState({ totalAmountAfterDiscount: state => state.cart.totalAmount }),
         ...mapState({ promotionPercent: state => state.cart.promotionPercent }),
-        ...mapState({isLoading: state => state.loading.isLoading}),
+        ...mapState({ isLoading: state => state.loading.isLoading }),
         totalAmount() {
             let total = 0;
             this.cartItems.forEach(i => {

@@ -21,5 +21,18 @@ namespace BookStoreCore.IRepository
 
 
         public IEnumerable<Product> getByIdCategory(int IdCategory);
+<<<<<<< Updated upstream
+=======
+<<<<<<< HEAD
+
+        public IEnumerable<Category> getAllCategory();
+
+        public void createNewCategory(string nameCategory, string nameUser);
+
+        public void deleteCategory(int idCategory);
+
+=======
+>>>>>>> 3de0db7d8f96c0b7e40be265b27f507a8c8d46c9
+>>>>>>> Stashed changes
     }
 }

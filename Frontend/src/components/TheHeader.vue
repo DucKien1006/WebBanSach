@@ -5,8 +5,8 @@
             <div class="right-header">
                 <ul>
                     <li v-if="isAdmin" @click="redirectAdmin()"><i class="fa-sharp fa-solid fa-toolbox"></i>Quản lý</li>
-                    <li><i class="fas fa-gift"></i>Ưu đãi</li>
                     <li @click="redirectHistory" v-if="logged"><i class="fas fa-history"></i>Lịch sử mua hàng</li>
+                    <li @click="redirectChangeInfo" v-if="logged" title="Cập nhật thông tin"><i class="fas fa-user"></i>{{ logInfo.fullname }}</li>
                     <li @click="redirectLogin" v-if="!logged"><i class="fas fa-sign-in-alt"></i>Đăng nhập</li>
                     <li  @click="redirectRegister" v-if="!logged"><i class="fas fa-user-plus"></i>Đăng ký</li>
                     <li v-if="logged" @click="logOut"><i class="fa-solid fa-arrow-right-from-bracket"></i>Đăng xuất</li>
@@ -83,6 +83,7 @@ export default {
             updateCartItems: 'cart/updateCartItems',
             updateTotalAmount: 'cart/updateTotalAmount',
             updatePromotionPercent: 'cart/updatePromotionPercent',
+            updateUserInfo: 'user/updateUserInfo',
             setSearchKeyWord: 'product/SET_SEARCH_KEYWORD',
         }),
         redirectHomePage() {
@@ -96,6 +97,9 @@ export default {
         },
         redirectHistory() {
             this.$router.push("/history");
+        },
+        redirectChangeInfo() {
+            this.$router.push("/info");
         },
         searchProduct() {
             this.$router.push("/");
@@ -112,6 +116,9 @@ export default {
         checkPermission() {
             const me = this;
             checkPermission().then(res => {
+                if(res.data) {
+                    this.updateUserInfo(res.data);
+                }
                 if (res && res.success) {
                     me.isAdmin = true;
                 }
@@ -126,7 +133,8 @@ export default {
 
     },
     computed: {
-        ...mapState({ quantity: state => state.cart.quantity })
+        ...mapState({ quantity: state => state.cart.quantity }),
+        ...mapState({ logInfo: state => state.user.userInfo })
     }
 }
 </script>

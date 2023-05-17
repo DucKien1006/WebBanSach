@@ -161,5 +161,39 @@ namespace BookStoreInfrastructure.Repository
 
             var res = sqlConnector.Query<Product>(querySQL);
         }
+<<<<<<< Updated upstream
+=======
+<<<<<<< HEAD
+
+        public IEnumerable<Category> getAllCategory()
+        {
+            var sqlConnector = new MySqlConnection(base.connectString);
+
+            var querySQL = $"Select * from catagory";
+
+            var res = sqlConnector.Query<Category>(querySQL).ToList();
+            return res;
+        }
+
+        public void createNewCategory(string nameCategory, string nameUser)
+        {
+            var sqlConnector = new MySqlConnection(base.connectString);
+
+            var querySQL = $"INSERT catagory ( NameCategory, CreatedDate, CreatedBy, ModifiedDate, ModifiedBy, CategoryCode)  VALUES ( '{nameCategory}', CURDATE(), '{nameUser}', CURDATE(), '{nameUser}', '');";
+
+            var res = sqlConnector.Query(querySQL);
+        }
+
+        public void deleteCategory(int idCategory)
+        {
+            var sqlConnector = new MySqlConnection(base.connectString);
+
+            var querySQL = $"Delete from catagory where idCategory = {idCategory} Limit 1 ;";
+
+            var res = sqlConnector.Query(querySQL);
+        }
+=======
+>>>>>>> 3de0db7d8f96c0b7e40be265b27f507a8c8d46c9
+>>>>>>> Stashed changes
     }
 }
